@@ -1,5 +1,6 @@
 ﻿using GardenGroupIncidentSystem.Models;
 using System.Collections.Generic;
+using GardenGroupIncidentSystem.Services.Repositories;
 
 namespace GardenGroupIncidentSystem.Services
 {
