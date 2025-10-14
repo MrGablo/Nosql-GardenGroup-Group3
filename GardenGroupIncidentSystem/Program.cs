@@ -39,10 +39,12 @@ builder.Services.AddScoped(sp =>
 
 // Register Repository (Data Access Layer)
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+builder.Services.AddScoped<ITicketRepository, TicketRepository>();
 
 
 // Register Service (Business Logic Layer)
 builder.Services.AddScoped<EmployeeService>();
+builder.Services.AddScoped<ITicketService, TicketService>();
 
 var app = builder.Build();
 
