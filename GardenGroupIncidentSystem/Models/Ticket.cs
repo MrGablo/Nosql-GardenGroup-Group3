@@ -84,6 +84,4 @@
         public DateTime? FinishedAt { get; set; }
     }
 
-    // Optional sub-object if you need to store employee names consistently
-
 }
