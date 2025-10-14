@@ -8,7 +8,8 @@
     {
         Open,
         Closed,
-        Resolved
+        Resolved,
+        Inprogress
     }
     public class Ticket
     {

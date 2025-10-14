@@ -87,16 +87,18 @@ namespace GardenGroupIncidentSystem.Services.Repositories
         public void UpdateTicket(string ticketId, Ticket updatedTicket)
         {
             if (string.IsNullOrEmpty(ticketId) || updatedTicket == null)
-                return;
-
+                throw new Exception("Null ticket id or Ticket");
+            if(GetTicketById(ticketId) == null)
+                throw new Exception("Ticket not found");
             _tickets.ReplaceOne(t => t.Id == ticketId, updatedTicket);
         }
 
         public void DeleteTicket(string ticketId)
         {
             if (string.IsNullOrEmpty(ticketId))
-                return;
-
+                throw new Exception("ticket id is null");
+            if(GetTicketById(ticketId).TicketStatus != Status.Closed || GetTicketById(ticketId).TicketStatus != Status.Resolved)
+                throw new Exception("Only tickets with status 'Closed' or 'Resolved' can be deleted.");
             _tickets.DeleteOne(t => t.Id == ticketId);
         }
 
