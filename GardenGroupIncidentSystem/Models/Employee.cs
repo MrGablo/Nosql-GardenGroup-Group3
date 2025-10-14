@@ -3,6 +3,14 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace GardenGroupIncidentSystem.Models
 {
+    public enum Role
+    {
+        supervisor,
+        servicedesk_1,
+        servicedesk_2,
+        servicedesk_3,
+        regular
+    }
     public class Employee
     {
         [BsonId]
@@ -13,7 +21,7 @@ namespace GardenGroupIncidentSystem.Models
         public string Password { get; set; }
 
         [BsonElement("Role")]
-        public string Role { get; set; }
+        public Role EmployeeRole { get; set; }
 
         [BsonElement("Name")]
         public EmployeeName Name { get; set; }
