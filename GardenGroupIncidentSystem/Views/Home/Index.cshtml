@@ -1,0 +1,26 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center" style="padding: 60px 20px;">
+    <h1 class="display-4">Garden Group Incident System</h1>
+    <p class="lead" style="margin: 30px 0;">Welcome to the Incident Management System</p>
+
+    <div style="margin-top: 50px;">
+        <a href="@Url.Action("Index", "Employee")"
+           style="display: inline-block; padding: 20px 50px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; border-radius: 12px; font-weight: 600; font-size: 18px; box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4); transition: transform 0.3s;">
+            👥 Employee Management
+        </a>
+    </div>
+
+    <p style="margin-top: 30px; color: #6c757d;">
+        Deliverable 2: CREATE and READ Operations
+    </p>
+</div>
+
+<style>
+    a:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 30px rgba(102, 126, 234, 0.6) !important;
+    }
+</style>
