@@ -106,6 +106,11 @@
             color: #7b1fa2;
         }
 
+        .badge-supervisor {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
         .password-display {
             font-family: 'Consolas', 'Courier New', monospace;
             font-size: 12px;
@@ -203,35 +208,57 @@
                     <div class="detail-value"><strong style="font-size: 16px;">@Model.Id</strong></div>
                 </div>
 
-                <div class="detail-row">
-                    <div class="detail-label">First Name:</div>
-                    <div class="detail-value">@Model.Name.FirstName</div>
-                </div>
+                @if (Model.Name != null)
+                {
+                    <div class="detail-row">
+                        <div class="detail-label">First Name:</div>
+                        <div class="detail-value">@Model.Name.FirstName</div>
+                    </div>
 
-                <div class="detail-row">
-                    <div class="detail-label">Last Name:</div>
-                    <div class="detail-value">@Model.Name.LastName</div>
-                </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Last Name:</div>
+                        <div class="detail-value">@Model.Name.LastName</div>
+                    </div>
 
-                <div class="detail-row">
-                    <div class="detail-label">Full Name:</div>
-                    <div class="detail-value"><strong>@Model.Name.FirstName @Model.Name.LastName</strong></div>
-                </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Full Name:</div>
+                        <div class="detail-value"><strong>@Model.Name.FirstName @Model.Name.LastName</strong></div>
+                    </div>
+                }
+                else
+                {
+                    <div class="detail-row">
+                        <div class="detail-label">Name:</div>
+                        <div class="detail-value"><span style="color: #6c757d;">No name information available</span></div>
+                    </div>
+                }
 
                 <div class="detail-row">
                     <div class="detail-label">Role:</div>
                     <div class="detail-value">
-                        @if (Model.Role == "regular")
+                        @if (Model.EmployeeRole == GardenGroupIncidentSystem.Models.Role.regular)
                         {
                             <span class="badge badge-regular">Regular Employee</span>
                         }
-                        else if (Model.Role == "service_desk")
+                        else if (Model.EmployeeRole == GardenGroupIncidentSystem.Models.Role.supervisor)
                         {
-                            <span class="badge badge-service-desk">Service Desk</span>
+                            <span class="badge badge-supervisor">Supervisor</span>
+                        }
+                        else if (Model.EmployeeRole == GardenGroupIncidentSystem.Models.Role.servicedesk_1)
+                        {
+                            <span class="badge badge-service-desk">Service Desk 1</span>
+                        }
+                        else if (Model.EmployeeRole == GardenGroupIncidentSystem.Models.Role.servicedesk_2)
+                        {
+                            <span class="badge badge-service-desk">Service Desk 2</span>
+                        }
+                        else if (Model.EmployeeRole == GardenGroupIncidentSystem.Models.Role.servicedesk_3)
+                        {
+                            <span class="badge badge-service-desk">Service Desk 3</span>
                         }
                         else
                         {
-                            <span class="badge" style="background: #e0e0e0; color: #424242;">@Model.Role</span>
+                            <span class="badge" style="background: #e0e0e0; color: #424242;">@Model.EmployeeRole.ToString()</span>
                         }
                     </div>
                 </div>
@@ -241,49 +268,61 @@
             <div class="detail-card">
                 <div class="section-title">📞 Contact Information</div>
 
-                <div class="detail-row">
-                    <div class="detail-label">Email Address:</div>
-                    <div class="detail-value">
-                        @if (!string.IsNullOrEmpty(Model.ContactDetails.EmailAddress))
-                        {
-                            <a href="mailto:@Model.ContactDetails.EmailAddress" style="color: #667eea; text-decoration: none;">
-                                @Model.ContactDetails.EmailAddress
-                            </a>
-                        }
-                        else
-                        {
-                            <span style="color: #6c757d;">No email provided</span>
-                        }
+                @if (Model.ContactDetails != null)
+                {
+                    <div class="detail-row">
+                        <div class="detail-label">Email Address:</div>
+                        <div class="detail-value">
+                            @if (!string.IsNullOrEmpty(Model.ContactDetails.EmailAddress))
+                            {
+                                <a href="mailto:@Model.ContactDetails.EmailAddress" style="color: #667eea; text-decoration: none;">
+                                    @Model.ContactDetails.EmailAddress
+                                </a>
+                            }
+                            else
+                            {
+                                <span style="color: #6c757d;">No email provided</span>
+                            }
+                        </div>
                     </div>
-                </div>
 
-                <div class="detail-row">
-                    <div class="detail-label">Phone Number:</div>
-                    <div class="detail-value">
-                        @if (!string.IsNullOrEmpty(Model.ContactDetails.PhoneNumber))
-                        {
-                            <span>@Model.ContactDetails.PhoneNumber</span>
-                        }
-                        else
-                        {
-                            <span style="color: #6c757d;">No phone provided</span>
-                        }
+                    <div class="detail-row">
+                        <div class="detail-label">Phone Number:</div>
+                        <div class="detail-value">
+                            @if (!string.IsNullOrEmpty(Model.ContactDetails.PhoneNumber))
+                            {
+                                <span>@Model.ContactDetails.PhoneNumber</span>
+                            }
+                            else
+                            {
+                                <span style="color: #6c757d;">No phone provided</span>
+                            }
+                        </div>
                     </div>
-                </div>
 
-                <div class="detail-row">
-                    <div class="detail-label">Location:</div>
-                    <div class="detail-value">
-                        @if (!string.IsNullOrEmpty(Model.ContactDetails.Location))
-                        {
-                            <span>📍 @Model.ContactDetails.Location</span>
-                        }
-                        else
-                        {
-                            <span style="color: #6c757d;">No location provided</span>
-                        }
+                    <div class="detail-row">
+                        <div class="detail-label">Location:</div>
+                        <div class="detail-value">
+                            @if (!string.IsNullOrEmpty(Model.ContactDetails.Location))
+                            {
+                                <span>📍 @Model.ContactDetails.Location</span>
+                            }
+                            else
+                            {
+                                <span style="color: #6c757d;">No location provided</span>
+                            }
+                        </div>
                     </div>
-                </div>
+                }
+                else
+                {
+                    <div class="detail-row">
+                        <div class="detail-label">Contact Details:</div>
+                        <div class="detail-value">
+                            <span style="color: #6c757d;">No contact details available</span>
+                        </div>
+                    </div>
+                }
             </div>
 
             <!-- Security Information -->
@@ -306,14 +345,12 @@
                                     @if (Model.Password.Length == 64)
                                     {
                                         <span class="success-badge">✓ SHA256 Hash (64 characters)</span>
-
                                         <br />
                                         <span style="color: #6c757d;">Password is securely hashed and cannot be reversed</span>
                                     }
                                     else
                                     {
                                         <span class="warning-badge">⚠️ Unexpected password format</span>
-
                                         <br />
                                         <span style="color: #6c757d;">Length: @Model.Password.Length characters (Expected: 64 for SHA256)</span>
                                     }
