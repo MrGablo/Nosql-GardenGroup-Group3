@@ -1,5 +1,6 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using System.Collections.Generic;
 
 namespace GardenGroupIncidentSystem.Models
 {
@@ -9,8 +10,11 @@ namespace GardenGroupIncidentSystem.Models
         servicedesk_1,
         servicedesk_2,
         servicedesk_3,
+        service_desk,
         regular
     }
+
+    [BsonIgnoreExtraElements]
     public class Employee
     {
         [BsonId]
@@ -23,31 +27,68 @@ namespace GardenGroupIncidentSystem.Models
         [BsonElement("Role")]
         public Role EmployeeRole { get; set; }
 
-        [BsonElement("EmailAddress")]
-        public string EmailAddress { get; set; }
+        [BsonElement("Name")]
+        public Names Name { get; set; }
 
-        [BsonElement("Location")]
-        public string Location { get; set; }
+        [BsonElement("ContactDetails")]
+        public ContactDetail ContactDetails { get; set; }
 
-        [BsonElement("PhoneNumber")]
-        public string PhoneNumber { get; set; }
+        [BsonIgnoreExtraElements]
+        public class ContactDetail
+        {
+            [BsonElement("EmailAddress")]
+            public string EmailAddress { get; set; }
 
-        [BsonElement("FirstName")]
-        public string FirstName { get; set; }
+            [BsonElement("Location")]
+            public string Location { get; set; }
 
-        [BsonElement("LastName")]
-        public string LastName { get; set; }
+            [BsonElement("PhoneNumber")]
+            public string PhoneNumber { get; set; }
+
+            public ContactDetail() { }
+
+            public ContactDetail(string emailaddress, string location, string phoneNumber)
+            {
+                EmailAddress = emailaddress;
+                Location = location;
+                PhoneNumber = phoneNumber;
+            }
+        }
+
+        [BsonIgnoreExtraElements]
+        public class Names
+        {
+            [BsonElement("FirstName")]
+            public string FirstName { get; set; }
+
+            [BsonElement("LastName")]
+            public string LastName { get; set; }
+
+            public Names() { }
+
+            public Names(string firstName, string lastName)
+            {
+                FirstName = firstName;
+                LastName = lastName;
+            }
+        }
+
         public Employee() { }
+
         public Employee(string id, string password, Role employeeRole, string emailAddress, string location, string phoneNumber, string firstName, string lastName)
         {
             Id = id;
             Password = password;
             EmployeeRole = employeeRole;
-            EmailAddress = emailAddress;
-            Location = location;
-            PhoneNumber = phoneNumber;
-            FirstName = firstName;
-            LastName = lastName;
+            ContactDetails = new ContactDetail(emailAddress, location, phoneNumber);
+            Name = new Names(firstName, lastName);
+        }
+
+        public class EmployeeStatistics
+        {
+            public int TotalEmployees { get; set; }
+            public Dictionary<string, int> ByRole { get; set; }
+            public Dictionary<string, int> ByLocation { get; set; }
         }
     }
-    }
+}

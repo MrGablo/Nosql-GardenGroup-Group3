@@ -1,14 +1,28 @@
 ﻿using GardenGroupIncidentSystem.Models;
 using System.Collections.Generic;
 
-namespace NoSQL_Project.Repositories.Interfaces
+namespace GardenGroupIncidentSystem.Services.Repositories
 {
     public interface IEmployeeRepository
     {
-        List<Employee> GetAll();
-        Employee? GetById(string id);
-        void Create(Employee employee);
-        void Update(string id, Employee employee);
-        void Delete(string id);
+        string GetNextEmployeeId();
+
+        Employee CreateEmployee(Employee employee);
+        void CreateEmployees(List<Employee> employees);
+
+        List<Employee> GetAllEmployees();
+        Employee GetEmployeeById(string employeeId);
+        List<Employee> GetEmployeesByRole(Role role);
+        List<Employee> GetEmployeesByIds(List<string> employeeIds);
+        List<Employee> GetEmployeesByRoles(List<Role> roles);
+        List<Employee> GetEmployeesByLocationAndRole(string location, Role role);
+        List<Employee> SearchEmployeesByName(string searchTerm);
+
+        bool EmployeeExists(string employeeId);
+        long CountAllEmployees();
+
+        Dictionary<string, int> GetEmployeeCountByRole();
+        Dictionary<string, int> GetEmployeeCountByLocation();
+        Employee.EmployeeStatistics GetEmployeeStatistics();
     }
 }
