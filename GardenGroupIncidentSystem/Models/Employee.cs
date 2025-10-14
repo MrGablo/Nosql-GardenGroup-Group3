@@ -17,7 +17,7 @@ namespace GardenGroupIncidentSystem.Models
     [BsonIgnoreExtraElements]
     public class Employee
     {
-        [BsonId]
+    
         [BsonElement("_id")]
         public string Id { get; set; }
 
@@ -73,7 +73,7 @@ namespace GardenGroupIncidentSystem.Models
             }
         }
 
-        public Employee() { }
+        public Employee(){ }
 
         public Employee(string id, string password, Role employeeRole, string emailAddress, string location, string phoneNumber, string firstName, string lastName)
         {

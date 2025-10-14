@@ -19,7 +19,7 @@ namespace GardenGroupIncidentSystem.Services.Repositories
 
         public TicketRepository(IMongoDatabase db)
         {
-            _tickets = db.GetCollection<Ticket>("Ticket");
+            _tickets = db.GetCollection<Ticket>("Tickets");
         }
 
         // ========================================================================
