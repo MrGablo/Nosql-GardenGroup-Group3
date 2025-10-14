@@ -8,7 +8,8 @@
     {
         Open,
         Closed,
-        Resolved
+        Resolved,
+        Inprogress
     }
     public class Ticket
     {
@@ -82,7 +83,5 @@
         [BsonElement("finishedAt")]
         public DateTime? FinishedAt { get; set; }
     }
-
-    // Optional sub-object if you need to store employee names consistently
 
 }

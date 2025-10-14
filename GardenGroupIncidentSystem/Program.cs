@@ -40,6 +40,7 @@ builder.Services.AddScoped(sp =>
 // Register Repository (Data Access Layer)
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 
+
 // Register Service (Business Logic Layer)
 builder.Services.AddScoped<EmployeeService>();
 
