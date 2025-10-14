@@ -22,9 +22,7 @@ namespace GardenGroupIncidentSystem.Services.Repositories
             _tickets = db.GetCollection<Ticket>("Ticket");
         }
 
-        // ========================================================================
         // CREATE
-        // ========================================================================
 
         public Ticket CreateTicket(Ticket ticket)
         {
@@ -54,9 +52,7 @@ namespace GardenGroupIncidentSystem.Services.Repositories
             _tickets.InsertMany(tickets);
         }
 
-        // ========================================================================
-        // READ
-        // ========================================================================
+        // Read all the Tickets
 
         public List<Ticket> GetAllTickets()
         {
@@ -91,7 +87,7 @@ namespace GardenGroupIncidentSystem.Services.Repositories
 
             _tickets.ReplaceOne(t => t.Id == ticketId, updatedTicket);
         }
-
+        // Delete only if the ticket status is Closed or Resolved
         public void DeleteTicket(string ticketId)
         {
             if (string.IsNullOrEmpty(ticketId))
@@ -111,7 +107,7 @@ namespace GardenGroupIncidentSystem.Services.Repositories
 
             return pipeline.ToDictionary(x => x.Status, x => x.Count);
         }
-
+        // Aggregation to get ticket counts by priority
         public Dictionary<string, int> GetTicketCountByPriority()
         {
             var pipeline = _tickets.Aggregate()
@@ -123,7 +119,7 @@ namespace GardenGroupIncidentSystem.Services.Repositories
 
             return pipeline.ToDictionary(x => x.Priority, x => x.Count);
         }
-
+        
         private string GenerateNextTicketId()
         {
             var allTickets = _tickets.Find(_ => true).ToList();
