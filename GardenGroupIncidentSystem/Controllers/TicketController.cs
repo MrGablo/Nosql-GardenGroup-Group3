@@ -1,6 +1,6 @@
 ﻿using GardenGroupIncidentSystem.Models;
 using Microsoft.AspNetCore.Mvc;
-using NoSQL_Project.Services.Interfaces;
+using GardenGroupIncidentSystem.Services;
 
 namespace NoSQL_Project.Controllers
 {

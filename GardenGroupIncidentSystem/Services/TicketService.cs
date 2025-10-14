@@ -67,22 +67,40 @@ namespace GardenGroupIncidentSystem.Services
 
         public void UpdateTicket(string ticketId, Ticket updatedTicket)
         {
-            if (string.IsNullOrEmpty(ticketId) || updatedTicket == null)
-                return;
+            try
+            {
+                if (string.IsNullOrEmpty(ticketId) || updatedTicket == null)
+                    return;
 
-            // block updates on closed tickets
-            var existing = _ticketRepository.GetTicketById(ticketId);
-            if (existing == null) return;
+                // block updates on closed tickets
+                var existing = _ticketRepository.GetTicketById(ticketId);
+                if (existing == null) return;
 
-            _ticketRepository.UpdateTicket(ticketId, updatedTicket);
+                _ticketRepository.UpdateTicket(ticketId, updatedTicket);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (logging mechanism not shown here)
+                Console.WriteLine($"Error updating ticket: {ex.Message}");
+                throw; // Re-throw the exception after logging
+            }
         }
 
         public void DeleteTicket(string ticketId)
         {
-            if (string.IsNullOrEmpty(ticketId))
-                return;
+            try
+            {
+                if (string.IsNullOrEmpty(ticketId))
+                    return;
 
-            _ticketRepository.DeleteTicket(ticketId);
+                _ticketRepository.DeleteTicket(ticketId);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (logging mechanism not shown here)
+                Console.WriteLine($"Error deleting ticket: {ex.Message}");
+                throw; // Re-throw the exception after logging
+            }
         }
 
         public Dictionary<Status, int> GetTicketCountByStatus() =>
