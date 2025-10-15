@@ -120,5 +120,17 @@ namespace GardenGroupIncidentSystem.Services
                 return builder.ToString();
             }
         }
+
+        public Employee? GetByLoginCredentials(string userName, string password)
+        {
+            try
+            {
+                return _repository.GetByLoginCredentials(userName, HashPassword(userName + password));
+            }
+            catch
+            {
+                throw new Exception("An error occurred while retrieving employee by login credentials.");
+            }
+        }
     }
 }
