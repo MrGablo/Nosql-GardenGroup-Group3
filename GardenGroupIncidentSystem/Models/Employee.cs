@@ -27,6 +27,7 @@ namespace GardenGroupIncidentSystem.Models
         public string Password { get; set; }
 
         [BsonElement("Role")]
+        [BsonRepresentation(BsonType.String)]
         public Role EmployeeRole { get; set; }
 
         [BsonElement("Name")]
