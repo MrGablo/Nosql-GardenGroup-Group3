@@ -9,7 +9,6 @@
         Open,
         Closed,
         Resolved,
-        Inprogress
     }
     public class Ticket
     {
@@ -39,6 +38,7 @@
         public DateTime DateTimeReport { get; set; }
         [BsonElement("deadline")]
         public DateTime Deadline { get; set; }
+        [BsonRepresentation(MongoDB.Bson.BsonType.String)]
         [BsonElement("Status")]
         public Status TicketStatus { get; set; }
 
