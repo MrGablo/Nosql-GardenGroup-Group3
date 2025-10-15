@@ -79,5 +79,66 @@ namespace GardenGroupIncidentSystem.Services
         {
             return _ticketRepository.GetTicketCountByPriority();
         }
+        public void UpdateTicketWithWorkflow(string ticketId, Ticket updatedTicket, string handoverTo, string handoverReason)
+        {
+            if (string.IsNullOrEmpty(ticketId))
+                throw new ArgumentException("Ticket ID cannot be null or empty.");
+
+            var existing = _ticketRepository.GetTicketById(ticketId);
+            if (existing == null)
+                throw new InvalidOperationException($"Ticket {ticketId} not found.");
+
+            //  Update status
+            existing.TicketStatus = updatedTicket.TicketStatus;
+
+            //  Mark finished if Resolved or Closed
+            if (existing.TicketStatus == Status.Resolved || existing.TicketStatus == Status.Closed)
+            {
+                var lastWork = existing.WorkedBy.LastOrDefault();
+                if (lastWork != null)
+                {
+                    lastWork.Timestamps.FinishedAt = DateTime.Now;
+                    lastWork.Active = false;
+                }
+            }
+
+            //  Handle handover
+            if (!string.IsNullOrEmpty(handoverTo))
+            {
+                var current = existing.WorkedBy.LastOrDefault();
+
+                // Mark current worker as inactive
+                if (current != null)
+                {
+                    current.Timestamps.HandedAt = DateTime.Now;
+                    current.Active = false;
+                }
+
+                string byEmployee = current?.Employee?.Id ?? "System";
+
+                var newWorkedBy = new WorkedBy
+                {
+                    Employee = new Employee { Id = handoverTo },
+                    Handover = new Handover
+                    {
+                        ToEmployee = handoverTo,
+                        By = byEmployee,
+                        Why = string.IsNullOrEmpty(handoverReason) ? "Manual handover" : handoverReason
+                    },
+                    Timestamps = new Timestamps
+                    {
+                        AssignedAt = DateTime.Now,
+                        HandedAt = null,
+                        FinishedAt = null
+                    },
+                    Active = true
+                };
+
+                existing.WorkedBy.Add(newWorkedBy);
+            }
+
+            //Save back to DB
+            _ticketRepository.UpdateTicket(ticketId, existing);
+        }
     }
 }

@@ -18,5 +18,7 @@ namespace GardenGroupIncidentSystem.Services
         // Analytics / counts
         Dictionary<Status, int> GetTicketCountByStatus();
         Dictionary<string, int> GetTicketCountByPriority();
+
+        void UpdateTicketWithWorkflow(string ticketId, Ticket updatedTicket, string handoverTo, string handoverReason);
     }
 }

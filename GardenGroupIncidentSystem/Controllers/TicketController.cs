@@ -68,30 +68,51 @@ namespace NoSQL_Project.Controllers
             return View(ticket);
         }
 
-        // Updates an existing ticket by ID
-        [HttpPost]
-        public IActionResult Edit(string id, Ticket ticket)
+
+        [HttpGet]
+        public IActionResult Edit(string id)
         {
-            if (ModelState.IsValid)
+            var ticket = _ticketService.GetTicketById(id);
+            if (ticket == null)
             {
-                _ticketService.UpdateTicket(id, ticket);
+                TempData["Error"] = $"Ticket {id} not found.";
+                return RedirectToAction("Index");
+            }
+            return View(ticket);
+        }
+
+        [HttpPost]
+        public IActionResult Edit(string id, Ticket ticket, string HandoverTo, string HandoverReason)
+        {
+            try
+            {
+                _ticketService.UpdateTicketWithWorkflow(id, ticket, HandoverTo, HandoverReason);
                 TempData["Success"] = $"Ticket {id} updated successfully.";
             }
-            else
+            catch (Exception ex)
             {
-                TempData["Error"] = $"Failed to update ticket {id}.";
+                TempData["Error"] = ex.Message;
             }
 
             return RedirectToAction("Index");
         }
 
+
         // Deletes a ticket by ID
         [HttpPost]
         public IActionResult Delete(string id)
         {
-            _ticketService.DeleteTicket(id);
-            TempData["Success"] = $"Ticket {id} deleted successfully.";
-            return RedirectToAction("Index");
+            try
+            {
+                _ticketService.DeleteTicket(id);
+                TempData["Success"] = $"Ticket {id} deleted successfully.";
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Failed to delete ticket {id}: {ex.Message}";
+                return RedirectToAction("Index");
+            }
         }
     }
 }

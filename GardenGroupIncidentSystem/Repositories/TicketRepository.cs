@@ -128,9 +128,12 @@ namespace GardenGroupIncidentSystem.Services.Repositories
         // Delete only if the ticket status is Closed or Resolved
         public void DeleteTicket(string ticketId)
         {
+            Ticket ticket = GetTicketById(ticketId);
             if (string.IsNullOrEmpty(ticketId))
                 throw new Exception("ticket id is null");
-            if(GetTicketById(ticketId).TicketStatus != Status.Closed || GetTicketById(ticketId).TicketStatus != Status.Resolved)
+            if(ticket.TicketStatus != Status.Closed)
+                throw new Exception("Only tickets with status 'Closed' or 'Resolved' can be deleted.");
+            else if (ticket.TicketStatus != Status.Resolved)
                 throw new Exception("Only tickets with status 'Closed' or 'Resolved' can be deleted.");
             _tickets.DeleteOne(t => t.Id == ticketId);
         }
