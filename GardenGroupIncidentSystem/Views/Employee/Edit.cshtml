@@ -7,21 +7,102 @@
 <html>
 <head>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg,#667eea 0%,#764ba2 100%); padding:20px; }
-        .container { max-width: 900px; margin: 0 auto; background: #fff; border-radius:16px; box-shadow:0 20px 60px rgba(0,0,0,.3); overflow:hidden; }
-        .header { background: linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:#fff; padding:28px 36px; }
-        .header h1 { font-size:26px; font-weight:600; }
-        .content { padding:36px; }
-        .info-note { background:#e7f3ff; border-left:4px solid #2196f3; padding:12px 15px; border-radius:4px; font-size:14px; color:#0d47a1; margin-bottom:18px; }
-        .form-grid { display:grid; grid-template-columns: repeat(2,1fr); gap:18px; margin-bottom:20px; }
-        .form-group { display:flex; flex-direction:column; }
-        .form-group label { font-weight:600; margin-bottom:6px; color:#495057; font-size:14px; }
-        .form-group input, .form-group select { padding:12px; border:2px solid #ced4da; border-radius:6px; font-size:14px; }
-        .btn { padding:12px 22px; border:none; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; text-decoration:none; display:inline-block; }
-        .btn-primary { background: linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:#fff; }
-        .btn-secondary { background:#6c757d; color:#fff; }
-        .actions { display:flex; gap:10px; margin-top:10px; }
-        .muted { color:#6c757d; font-size:13px; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 36px;
+        }
+
+            .header h1 {
+                font-size: 28px;
+                font-weight: 600;
+            }
+
+        .content {
+            padding: 40px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+            .form-group label {
+                font-weight: 600;
+                margin-bottom: 8px;
+                color: #495057;
+                font-size: 14px;
+            }
+
+            .form-group input, .form-group select {
+                padding: 12px;
+                border: 2px solid #ced4da;
+                border-radius: 6px;
+                font-size: 14px;
+            }
+
+                .form-group input:focus, .form-group select:focus {
+                    outline: none;
+                    border-color: #667eea;
+                }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196f3;
+            padding: 12px 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #0d47a1;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .actions {
+            margin-top: 30px;
+            display: flex;
+            gap: 10px;
+        }
     </style>
 </head>
 <body>
@@ -29,32 +110,16 @@
         <div class="header">
             <h1>✏️ Edit Employee — @Model.Id</h1>
         </div>
+
         <div class="content">
-
-            @if (TempData["Error"] != null)
-            {
-                <div class="info-note" style="background:#f8d7da;border-left-color:#c82333;color:#721c24;">
-                    ❌ @TempData["Error"]
-                </div>
-            }
-
-            <div class="info-note">
-                ℹ️ <strong>About Password Security:</strong> Passwords are hashed using SHA256 before storage.
-                Leave “New Password” empty to keep the current password.
+            <div class="info-box">
+                ℹ️ <strong>Password Policy:</strong> Passwords are hashed using SHA256 before storage. Leave “New Password” blank to keep current password.
             </div>
 
             <form asp-action="Edit" method="post">
                 <input type="hidden" name="id" value="@Model.Id" />
 
                 <div class="form-grid">
-                    <div class="form-group">
-                        <label>Employee ID</label>
-                        <input value="@Model.Id" disabled />
-                        <span class="muted">Id is not editable</span>
-                    </div>
-
-                    <div></div>
-
                     <div class="form-group">
                         <label>First Name</label>
                         <input name="firstName" value="@Model.Name?.FirstName" required />
@@ -67,12 +132,12 @@
 
                     <div class="form-group">
                         <label>Email</label>
-                        <input name="email" type="email" value="@Model.ContactDetails?.EmailAddress" />
+                        <input name="emailAddress" type="email" value="@Model.ContactDetails?.EmailAddress" />
                     </div>
 
                     <div class="form-group">
                         <label>Phone</label>
-                        <input name="phone" value="@Model.ContactDetails?.PhoneNumber" />
+                        <input name="phoneNumber" value="@Model.ContactDetails?.PhoneNumber" />
                     </div>
 
                     <div class="form-group">
@@ -99,8 +164,7 @@
 
                 <div class="actions">
                     <button type="submit" class="btn btn-primary">✅ Save Changes</button>
-                    <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">Back to Details</a>
-                    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+                    <a asp-action="Index" class="btn btn-secondary">⬅ Back to List</a>
                 </div>
             </form>
         </div>

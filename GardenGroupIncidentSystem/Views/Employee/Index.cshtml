@@ -462,7 +462,14 @@
                                     <a href="@Url.Action("Details", "Employee", new { id = employee.Id })" class="btn btn-info">
                                         👁️ View Details
                                     </a>
-                                </td>
+                                    @if (User.IsInRole("supervisor"))
+                                    {
+                                        <a href="@Url.Action("Edit","Employee", new { id = employee.Id })" class="btn btn-warning">✏️ Edit</a>
+                                        <form asp-action="Delete" asp-controller="Ticket" method="post" style="display:inline" onsubmit="return confirm('Delete ticket @employee.Id?');">
+                                            <input type="hidden" name="id" value="@employee.Id" />
+                                            <button type="submit" class="btn btn-danger">🗑️ Delete</button>
+                                        </form>
+                                    }
                             </tr>
                         }
                     }
