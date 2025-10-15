@@ -462,7 +462,11 @@
                                     <a href="@Url.Action("Details", "Employee", new { id = employee.Id })" class="btn btn-info">
                                         👁️ View Details
                                     </a>
-                                </td>
+
+                                    <a href="@Url.Action("Edit","Employee", new { id = employee.Id })" class="btn btn-warning">✏️ Edit</a>
+
+                                    <a href="@Url.Action("Delete","Employee", new { id = employee.Id })" class="btn btn-danger">🗑️ Delete</a>
+
                             </tr>
                         }
                     }

@@ -180,5 +180,37 @@ namespace GardenGroupIncidentSystem.Controllers
                 return View("Index", new System.Collections.Generic.List<Employee>());
             }
         }
+
+        [HttpGet]
+        public IActionResult Edit(string id)
+        {
+            var emp = _employeeService.GetEmployeeById(id);
+            return View(emp);
+        }
+
+        [HttpPost]
+        public IActionResult Edit(string id, string firstName, string lastName, string role, string? emailAddress, string? phoneNumber, string? location, string? newPassword)
+        {
+            _employeeService.UpdateEmployee(id, firstName, lastName, role, emailAddress, phoneNumber, location, newPassword);
+            TempData["Success"] = "Employee updated.";
+            return RedirectToAction("Index");
+        }
+
+        [HttpGet]
+        public IActionResult Delete(string id)
+        {
+            var emp = _employeeService.GetEmployeeById(id);
+            return View(emp);
+        }
+
+        [HttpPost, ActionName("DeleteConfirmed")]
+        public IActionResult DeleteConfirmed(string id)
+        {
+            _employeeService.DeleteEmployee(id);
+            TempData["Success"] = "Employee deleted.";
+            return RedirectToAction("Index");
+        }
+
+
     }
 }
