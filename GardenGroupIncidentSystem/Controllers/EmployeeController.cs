@@ -181,7 +181,7 @@ namespace GardenGroupIncidentSystem.Controllers
             }
         }
 
-        // GET: /Employee/Edit/E0001
+        // GET: /Employee/Edit
         [HttpGet]
         public IActionResult Edit(string id)
         {
