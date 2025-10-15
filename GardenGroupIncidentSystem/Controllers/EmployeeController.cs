@@ -61,7 +61,7 @@ namespace GardenGroupIncidentSystem.Controllers
                 {
                     //remember logged in user
                     HttpContext.Session.SetObject("LoggedInUser", employee);
-                    return RedirectToAction("Employee", "Index");
+                    return RedirectToAction("Index", "Employee");
                 }
             }
             catch (Exception ex)

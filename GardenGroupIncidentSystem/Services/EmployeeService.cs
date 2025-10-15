@@ -125,7 +125,7 @@ namespace GardenGroupIncidentSystem.Services
         {
             try
             {
-                return _repository.GetByLoginCredentials(userName, HashPassword(userName + password));
+                return _repository.GetByLoginCredentials(userName, HashPassword(password));
             }
             catch
             {
