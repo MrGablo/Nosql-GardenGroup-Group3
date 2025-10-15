@@ -29,5 +29,6 @@ namespace GardenGroupIncidentSystem.Services.Repositories
 
         void DeleteEmployee(string employeeId);
 
+        Employee? GetByLoginCredentials(string userName, string password);
     }
 }

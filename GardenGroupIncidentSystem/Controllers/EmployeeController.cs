@@ -39,6 +39,38 @@ namespace GardenGroupIncidentSystem.Controllers
                 return View(new System.Collections.Generic.List<Employee>());
             }
         }
+        [HttpGet]
+        public IActionResult Login()
+        {
+            return View();
+        }
+        [HttpPost]
+        public IActionResult Login(LoginModel loginModel)
+        {
+            try
+            {
+
+                Employee? employee = _employeeService.GetByLoginCredentials(loginModel.UserName, loginModel.Password);
+                if (employee == null)
+                {
+                    //bad login
+                    ViewBag.ErrorMessage = "Invalid username or password!";
+                    return View(loginModel);
+                }
+                else
+                {
+                    //remember logged in user
+                    HttpContext.Session.SetObject("LoggedInUser", employee);
+                    return RedirectToAction("Index", "Employee");
+                }
+            }
+            catch (Exception ex)
+            {
+                //handle exception
+                TempData["ErrorMessage"] = ex.Message;
+                return View(loginModel);
+            }
+        }
 
         [HttpPost]
         public IActionResult Create(string firstName, string lastName,

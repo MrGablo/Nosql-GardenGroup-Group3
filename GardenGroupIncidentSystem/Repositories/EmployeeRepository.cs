@@ -225,5 +225,11 @@ namespace GardenGroupIncidentSystem.Services.Repositories
                 throw new KeyNotFoundException($"Employee {employeeId} not found");
         }
 
+        public Employee? GetByLoginCredentials(string userName, string password)
+        {
+            if (string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(password))
+                return null;
+            return _employees.Find(emp => emp.Name.FirstName == userName && emp.Password == password).FirstOrDefault();
+        }
     }
 }
