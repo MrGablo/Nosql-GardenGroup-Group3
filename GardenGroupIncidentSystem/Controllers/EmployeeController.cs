@@ -148,5 +148,58 @@ namespace GardenGroupIncidentSystem.Controllers
                 return View("Index", new System.Collections.Generic.List<Employee>());
             }
         }
+
+        // GET: /Employee/Edit/E0001
+        [HttpGet]
+        public IActionResult Edit(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id)) return BadRequest();
+            Employee emp = _employeeService.GetEmployeeById(id);
+            if (emp == null) return NotFound();
+            return View(emp);
+        }
+
+        // POST: /Employee/Edit
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(
+            string id,
+            string firstName,
+            string lastName,
+            string role,
+            string? email,
+            string? phone,
+            string? location,
+            string? newPassword)
+        {
+            _employeeService.UpdateEmployee(
+                id, firstName, lastName, role,
+                email, phone, location,
+                string.IsNullOrWhiteSpace(newPassword) ? null : newPassword);
+
+            TempData["Success"] = "Employee updated.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        // GET: /Employee/Delete/E0001
+        [HttpGet]
+        public IActionResult Delete(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id)) return BadRequest();
+            Employee emp = _employeeService.GetEmployeeById(id);
+            if (emp == null) return NotFound();
+            return View(emp);
+        }
+
+        // POST: /Employee/DeleteConfirmed
+        [HttpPost, ActionName("DeleteConfirmed")]
+        [ValidateAntiForgeryToken]
+        public IActionResult DeleteConfirmed(string id)
+        {
+            _employeeService.DeleteEmployee(id);
+            TempData["Success"] = "Employee deleted.";
+            return RedirectToAction(nameof(Index));
+        }
+
     }
 }
