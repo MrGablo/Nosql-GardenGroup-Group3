@@ -14,6 +14,7 @@ namespace GardenGroupIncidentSystem.Services.Repositories
         Ticket GetTicketById(string ticketId);
         List<Ticket> GetTicketsByStatus(Status status);
         List<Ticket> GetTicketsByEmployee(string employeeId);
+        public List<Ticket> GetFilteredTickets(string q, string status, string priority, string type);
 
         // UPDATE
         void UpdateTicket(string ticketId, Ticket updatedTicket);
