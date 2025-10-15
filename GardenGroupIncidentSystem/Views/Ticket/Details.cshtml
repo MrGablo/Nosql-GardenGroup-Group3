@@ -1,6 +1,7 @@
 ﻿@model GardenGroupIncidentSystem.Models.Ticket
 @{
     ViewData["Title"] = "Ticket Details";
+    var loggedInUser = Context.Session.GetObject<Employee>("LoggedInUser");
 }
 
 <!DOCTYPE html>
