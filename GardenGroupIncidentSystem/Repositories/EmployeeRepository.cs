@@ -193,5 +193,43 @@ namespace GardenGroupIncidentSystem.Services.Repositories
         {
             return _employees.CountDocuments(emp => true);
         }
+
+        public void UpdateEmployee(string employeeId, string firstName, string lastName, string role, string? email, string? phone, string? location, string? hashedPassword = null)
+        {
+            if (!Enum.TryParse(role, true, out Role roleEnum))
+                throw new ArgumentException("Invalid role", nameof(role));
+
+            List<UpdateDefinition<Employee>> updates = new List<UpdateDefinition<Employee>>
+            {
+                Builders<Employee>.Update.Set("Name.FirstName", firstName),
+                Builders<Employee>.Update.Set("Name.LastName",  lastName),
+                Builders<Employee>.Update.Set(employee => employee.EmployeeRole, roleEnum),
+                Builders<Employee>.Update.Set("ContactDetails.EmailAddress", email ?? string.Empty),
+                Builders<Employee>.Update.Set("ContactDetails.PhoneNumber",  phone ?? string.Empty),
+                Builders<Employee>.Update.Set("ContactDetails.Location",     location ?? string.Empty)
+            };
+
+            if (!string.IsNullOrWhiteSpace(hashedPassword))
+                updates.Add(Builders<Employee>.Update.Set(e => e.Password, hashedPassword));
+
+            var result = _employees.UpdateOne(e => e.Id == employeeId,
+                                         Builders<Employee>.Update.Combine(updates));
+            if (result.MatchedCount == 0)
+                throw new KeyNotFoundException($"Employee {employeeId} not found");
+        }
+
+        public void DeleteEmployee(string employeeId)
+        {
+            var result = _employees.DeleteOne(e => e.Id == employeeId);
+            if (result.DeletedCount == 0)
+                throw new KeyNotFoundException($"Employee {employeeId} not found");
+        }
+
+        public Employee? GetByLoginCredentials(string userName, string password)
+        {
+            if (string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(password))
+                return null;
+            return _employees.Find(emp => emp.Name.FirstName == userName && emp.Password == password).FirstOrDefault();
+        }
     }
 }

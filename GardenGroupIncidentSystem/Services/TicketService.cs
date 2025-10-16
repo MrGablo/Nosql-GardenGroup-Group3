@@ -5,6 +5,10 @@ using System.Collections.Generic;
 
 namespace GardenGroupIncidentSystem.Services
 {
+    /// <summary>
+    /// Service layer for Ticket operations.
+    /// Encapsulates business logic and validation before database access.
+    /// </summary>
     public class TicketService : ITicketService
     {
         private readonly ITicketRepository _ticketRepository;
@@ -14,98 +18,127 @@ namespace GardenGroupIncidentSystem.Services
             _ticketRepository = ticketRepository;
         }
 
-        // CREATE
+        // CRUD
+
+        public List<Ticket> GetAllTickets()
+        {
+            return _ticketRepository.GetAllTickets();
+        }
+
+        public Ticket GetTicketById(string ticketId)
+        {
+            if (string.IsNullOrEmpty(ticketId))
+                throw new ArgumentException("Ticket ID cannot be null or empty.");
+
+            return _ticketRepository.GetTicketById(ticketId);
+        }
 
         public Ticket CreateTicket(Ticket ticket)
         {
             if (ticket == null)
                 throw new ArgumentNullException(nameof(ticket));
 
-            // Example business logic: ensure status defaults to Open
-            if (ticket.TicketStatus == 0)
-                ticket.TicketStatus = Status.Open;
-
             return _ticketRepository.CreateTicket(ticket);
-        }
-
-        public void CreateTickets(List<Ticket> tickets)
-        {
-            if (tickets == null || tickets.Count == 0)
-                throw new ArgumentException("Ticket list cannot be empty.");
-
-            foreach (var t in tickets)
-            {
-                if (t.TicketStatus == 0)
-                    t.TicketStatus = Status.Open;
-            }
-
-            _ticketRepository.CreateTickets(tickets);
-        }
-
-        public List<Ticket> GetAllTickets() =>
-            _ticketRepository.GetAllTickets();
-
-        public Ticket GetTicketById(string ticketId)
-        {
-            if (string.IsNullOrEmpty(ticketId))
-                return null;
-
-            return _ticketRepository.GetTicketById(ticketId);
-        }
-
-        public List<Ticket> GetTicketsByStatus(Status status) =>
-            _ticketRepository.GetTicketsByStatus(status);
-
-        public List<Ticket> GetTicketsByEmployee(string employeeId)
-        {
-            if (string.IsNullOrEmpty(employeeId))
-                return new List<Ticket>();
-
-            return _ticketRepository.GetTicketsByEmployee(employeeId);
         }
 
         public void UpdateTicket(string ticketId, Ticket updatedTicket)
         {
-            try
-            {
-                if (string.IsNullOrEmpty(ticketId) || updatedTicket == null)
-                    return;
+            if (string.IsNullOrEmpty(ticketId))
+                throw new ArgumentException("Ticket ID cannot be null or empty.");
 
-                // block updates on closed tickets
-                var existing = _ticketRepository.GetTicketById(ticketId);
-                if (existing == null) return;
+            if (updatedTicket == null)
+                throw new ArgumentNullException(nameof(updatedTicket));
 
-                _ticketRepository.UpdateTicket(ticketId, updatedTicket);
-            }
-            catch (Exception ex)
-            {
-                // Log the exception (logging mechanism not shown here)
-                Console.WriteLine($"Error updating ticket: {ex.Message}");
-                throw; // Re-throw the exception after logging
-            }
+            _ticketRepository.UpdateTicket(ticketId, updatedTicket);
         }
 
         public void DeleteTicket(string ticketId)
         {
-            try
-            {
-                if (string.IsNullOrEmpty(ticketId))
-                    return;
+            if (string.IsNullOrEmpty(ticketId))
+                throw new ArgumentException("Ticket ID cannot be null or empty.");
 
-                _ticketRepository.DeleteTicket(ticketId);
-            }
-            catch (Exception ex)
-            {
-                // Log the exception (logging mechanism not shown here)
-                Console.WriteLine($"Error deleting ticket: {ex.Message}");
-                throw; // Re-throw the exception after logging
-            }
+            _ticketRepository.DeleteTicket(ticketId);
         }
 
-        public Dictionary<Status, int> GetTicketCountByStatus() =>
-            _ticketRepository.GetTicketCountByStatus();
+        // FILTERS
 
-        public Dictionary<string, int> GetTicketCountByPriority() =>
-            _ticketRepository.GetTicketCountByPriority();
+        public List<Ticket> GetFilteredTickets(string q, string status, string priority, string type)
+        {
+            // Pass filters to repository
+            return _ticketRepository.GetFilteredTickets(q, status, priority, type);
+        }
+
+        // ANALYTICS
+
+        public Dictionary<Status, int> GetTicketCountByStatus()
+        {
+            return _ticketRepository.GetTicketCountByStatus();
+        }
+
+        public Dictionary<string, int> GetTicketCountByPriority()
+        {
+            return _ticketRepository.GetTicketCountByPriority();
+        }
+        public void UpdateTicketWithWorkflow(string ticketId, Ticket updatedTicket, string handoverTo, string handoverReason)
+        {
+            if (string.IsNullOrEmpty(ticketId))
+                throw new ArgumentException("Ticket ID cannot be null or empty.");
+
+            var existing = _ticketRepository.GetTicketById(ticketId);
+            if (existing == null)
+                throw new InvalidOperationException($"Ticket {ticketId} not found.");
+
+            //  Update status
+            existing.TicketStatus = updatedTicket.TicketStatus;
+
+            //  Mark finished if Resolved or Closed
+            if (existing.TicketStatus == Status.Resolved || existing.TicketStatus == Status.Closed)
+            {
+                var lastWork = existing.WorkedBy.LastOrDefault();
+                if (lastWork != null)
+                {
+                    lastWork.Timestamps.FinishedAt = DateTime.Now;
+                    lastWork.Active = false;
+                }
+            }
+
+            //  Handle handover
+            if (!string.IsNullOrEmpty(handoverTo))
+            {
+                var current = existing.WorkedBy.LastOrDefault();
+
+                // Mark current worker as inactive
+                if (current != null)
+                {
+                    current.Timestamps.HandedAt = DateTime.Now;
+                    current.Active = false;
+                }
+
+                string byEmployee = current?.Employee?.Id ?? "System";
+
+                var newWorkedBy = new WorkedBy
+                {
+                    Employee = new Employee { Id = handoverTo },
+                    Handover = new Handover
+                    {
+                        ToEmployee = handoverTo,
+                        By = byEmployee,
+                        Why = string.IsNullOrEmpty(handoverReason) ? "Manual handover" : handoverReason
+                    },
+                    Timestamps = new Timestamps
+                    {
+                        AssignedAt = DateTime.Now,
+                        HandedAt = null,
+                        FinishedAt = null
+                    },
+                    Active = true
+                };
+
+                existing.WorkedBy.Add(newWorkedBy);
+            }
+
+            //Save back to DB
+            _ticketRepository.UpdateTicket(ticketId, existing);
+        }
     }
 }

@@ -66,6 +66,43 @@ namespace GardenGroupIncidentSystem.Services.Repositories
 
             return _tickets.Find(t => t.Id == ticketId).FirstOrDefault();
         }
+        public List<Ticket> GetFilteredTickets(string q, string status, string priority, string type)
+        {
+            var filterBuilder = Builders<Ticket>.Filter;
+            var filters = new List<FilterDefinition<Ticket>>();
+
+            // Search (by ID, subject, or description)
+            if (!string.IsNullOrWhiteSpace(q))
+            {
+                var regex = new MongoDB.Bson.BsonRegularExpression(q, "i");
+                filters.Add(filterBuilder.Or(
+                    filterBuilder.Regex(t => t.Id, regex),
+                    filterBuilder.Regex(t => t.Subject, regex),
+                    filterBuilder.Regex(t => t.Description, regex)
+                ));
+            }
+
+            // Status filter
+            if (!string.Equals(status, "all", StringComparison.OrdinalIgnoreCase))
+            {
+                if (Enum.TryParse<Status>(status, true, out var statusEnum))
+                    filters.Add(filterBuilder.Eq(t => t.TicketStatus, statusEnum));
+            }
+
+            // Priority filter
+            if (!string.Equals(priority, "all", StringComparison.OrdinalIgnoreCase))
+                filters.Add(filterBuilder.Eq(t => t.Priority, priority));
+
+            // Type filter
+            if (!string.Equals(type, "all", StringComparison.OrdinalIgnoreCase))
+                filters.Add(filterBuilder.Eq(t => t.Type, type));
+
+            var finalFilter = filters.Count > 0
+                ? filterBuilder.And(filters)
+                : filterBuilder.Empty;
+
+            return _tickets.Find(finalFilter).ToList();
+        }
 
         public List<Ticket> GetTicketsByStatus(Status status)
         {
@@ -91,9 +128,12 @@ namespace GardenGroupIncidentSystem.Services.Repositories
         // Delete only if the ticket status is Closed or Resolved
         public void DeleteTicket(string ticketId)
         {
+            Ticket ticket = GetTicketById(ticketId);
             if (string.IsNullOrEmpty(ticketId))
                 throw new Exception("ticket id is null");
-            if(GetTicketById(ticketId).TicketStatus != Status.Closed || GetTicketById(ticketId).TicketStatus != Status.Resolved)
+            if(ticket.TicketStatus != Status.Closed)
+                throw new Exception("Only tickets with status 'Closed' or 'Resolved' can be deleted.");
+            else if (ticket.TicketStatus != Status.Resolved)
                 throw new Exception("Only tickets with status 'Closed' or 'Resolved' can be deleted.");
             _tickets.DeleteOne(t => t.Id == ticketId);
         }
@@ -124,18 +164,16 @@ namespace GardenGroupIncidentSystem.Services.Repositories
         
         private string GenerateNextTicketId()
         {
-            var allTickets = _tickets.Find(_ => true).ToList();
-            int max = 0;
+            var lastTicket = _tickets.Find(_ => true)
+                .SortByDescending(t => t.Id)
+                .FirstOrDefault();
 
-            foreach (var t in allTickets)
-            {
-                if (t.Id.StartsWith("T") && int.TryParse(t.Id.Substring(1), out int num))
-                {
-                    if (num > max) max = num;
-                }
-            }
+            int max = 0;
+            if (lastTicket != null && lastTicket.Id.StartsWith("T") && int.TryParse(lastTicket.Id.Substring(1), out int num))
+                max = num;
 
             return $"T{(max + 1):D4}";
         }
+
     }
 }

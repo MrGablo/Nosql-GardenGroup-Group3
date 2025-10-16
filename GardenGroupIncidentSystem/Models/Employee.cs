@@ -1,5 +1,7 @@
-﻿using MongoDB.Bson;
+﻿using DocumentFormat.OpenXml.Wordprocessing;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Conventions;
 using System.Collections.Generic;
 
 namespace GardenGroupIncidentSystem.Models
@@ -25,6 +27,7 @@ namespace GardenGroupIncidentSystem.Models
         public string Password { get; set; }
 
         [BsonElement("Role")]
+        [BsonRepresentation(BsonType.String)]
         public Role EmployeeRole { get; set; }
 
         [BsonElement("Name")]
@@ -74,6 +77,11 @@ namespace GardenGroupIncidentSystem.Models
         }
 
         public Employee(){ }
+        public Employee(string id, Names name)
+        {
+            Id = id;
+            Name = name;
+        }
 
         public Employee(string id, string password, Role employeeRole, string emailAddress, string location, string phoneNumber, string firstName, string lastName)
         {
