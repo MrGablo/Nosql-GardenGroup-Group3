@@ -9,7 +9,6 @@
         Open,
         Closed,
         Resolved,
-        Inprogress
     }
     public class Ticket
     {
@@ -27,11 +26,11 @@
         public string Description { get; set; }
 
         // Example: "Access Request", "Hardware Request", etc.
-        [BsonElement("Type")]
+        [BsonElement("type")]
         public string Type { get; set; }
 
         // Example: "High", "Medium", "Low"
-        [BsonElement("Priority")]
+        [BsonElement("priority")]
         public string Priority { get; set; }
 
         // ISO timestamp string or DateTime
@@ -39,18 +38,19 @@
         public DateTime DateTimeReport { get; set; }
         [BsonElement("deadline")]
         public DateTime Deadline { get; set; }
+        [BsonRepresentation(MongoDB.Bson.BsonType.String)]
         [BsonElement("Status")]
         public Status TicketStatus { get; set; }
 
         // History of who worked on this ticket
-        [BsonElement("WorkedBy")]
+        [BsonElement("workedBy")]
         public List<WorkedBy> WorkedBy { get; set; } = new();
     }
 
     // Represents one person or handover in the workflow
     public class WorkedBy
     {
-        [BsonElement("Employee")]
+        [BsonElement("employee")]
         public Employee Employee { get; set; }
         [BsonElement("handover")]
         public Handover Handover { get; set; }

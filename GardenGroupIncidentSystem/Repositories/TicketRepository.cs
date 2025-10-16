@@ -19,12 +19,10 @@ namespace GardenGroupIncidentSystem.Services.Repositories
 
         public TicketRepository(IMongoDatabase db)
         {
-            _tickets = db.GetCollection<Ticket>("Ticket");
+            _tickets = db.GetCollection<Ticket>("Tickets");
         }
 
-        // ========================================================================
         // CREATE
-        // ========================================================================
 
         public Ticket CreateTicket(Ticket ticket)
         {
@@ -54,9 +52,7 @@ namespace GardenGroupIncidentSystem.Services.Repositories
             _tickets.InsertMany(tickets);
         }
 
-        // ========================================================================
-        // READ
-        // ========================================================================
+        // Read all the Tickets
 
         public List<Ticket> GetAllTickets()
         {
@@ -69,6 +65,43 @@ namespace GardenGroupIncidentSystem.Services.Repositories
                 return null;
 
             return _tickets.Find(t => t.Id == ticketId).FirstOrDefault();
+        }
+        public List<Ticket> GetFilteredTickets(string q, string status, string priority, string type)
+        {
+            var filterBuilder = Builders<Ticket>.Filter;
+            var filters = new List<FilterDefinition<Ticket>>();
+
+            // Search (by ID, subject, or description)
+            if (!string.IsNullOrWhiteSpace(q))
+            {
+                var regex = new MongoDB.Bson.BsonRegularExpression(q, "i");
+                filters.Add(filterBuilder.Or(
+                    filterBuilder.Regex(t => t.Id, regex),
+                    filterBuilder.Regex(t => t.Subject, regex),
+                    filterBuilder.Regex(t => t.Description, regex)
+                ));
+            }
+
+            // Status filter
+            if (!string.Equals(status, "all", StringComparison.OrdinalIgnoreCase))
+            {
+                if (Enum.TryParse<Status>(status, true, out var statusEnum))
+                    filters.Add(filterBuilder.Eq(t => t.TicketStatus, statusEnum));
+            }
+
+            // Priority filter
+            if (!string.Equals(priority, "all", StringComparison.OrdinalIgnoreCase))
+                filters.Add(filterBuilder.Eq(t => t.Priority, priority));
+
+            // Type filter
+            if (!string.Equals(type, "all", StringComparison.OrdinalIgnoreCase))
+                filters.Add(filterBuilder.Eq(t => t.Type, type));
+
+            var finalFilter = filters.Count > 0
+                ? filterBuilder.And(filters)
+                : filterBuilder.Empty;
+
+            return _tickets.Find(finalFilter).ToList();
         }
 
         public List<Ticket> GetTicketsByStatus(Status status)
@@ -92,12 +125,15 @@ namespace GardenGroupIncidentSystem.Services.Repositories
                 throw new Exception("Ticket not found");
             _tickets.ReplaceOne(t => t.Id == ticketId, updatedTicket);
         }
-
+        // Delete only if the ticket status is Closed or Resolved
         public void DeleteTicket(string ticketId)
         {
+            Ticket ticket = GetTicketById(ticketId);
             if (string.IsNullOrEmpty(ticketId))
                 throw new Exception("ticket id is null");
-            if(GetTicketById(ticketId).TicketStatus != Status.Closed || GetTicketById(ticketId).TicketStatus != Status.Resolved)
+            if(ticket.TicketStatus != Status.Closed)
+                throw new Exception("Only tickets with status 'Closed' or 'Resolved' can be deleted.");
+            else if (ticket.TicketStatus != Status.Resolved)
                 throw new Exception("Only tickets with status 'Closed' or 'Resolved' can be deleted.");
             _tickets.DeleteOne(t => t.Id == ticketId);
         }
@@ -113,7 +149,7 @@ namespace GardenGroupIncidentSystem.Services.Repositories
 
             return pipeline.ToDictionary(x => x.Status, x => x.Count);
         }
-
+        // Aggregation to get ticket counts by priority
         public Dictionary<string, int> GetTicketCountByPriority()
         {
             var pipeline = _tickets.Aggregate()
@@ -125,21 +161,19 @@ namespace GardenGroupIncidentSystem.Services.Repositories
 
             return pipeline.ToDictionary(x => x.Priority, x => x.Count);
         }
-
+        
         private string GenerateNextTicketId()
         {
-            var allTickets = _tickets.Find(_ => true).ToList();
-            int max = 0;
+            var lastTicket = _tickets.Find(_ => true)
+                .SortByDescending(t => t.Id)
+                .FirstOrDefault();
 
-            foreach (var t in allTickets)
-            {
-                if (t.Id.StartsWith("T") && int.TryParse(t.Id.Substring(1), out int num))
-                {
-                    if (num > max) max = num;
-                }
-            }
+            int max = 0;
+            if (lastTicket != null && lastTicket.Id.StartsWith("T") && int.TryParse(lastTicket.Id.Substring(1), out int num))
+                max = num;
 
             return $"T{(max + 1):D4}";
         }
+
     }
 }

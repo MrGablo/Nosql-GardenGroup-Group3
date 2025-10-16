@@ -39,6 +39,38 @@ namespace GardenGroupIncidentSystem.Controllers
                 return View(new System.Collections.Generic.List<Employee>());
             }
         }
+        [HttpGet]
+        public IActionResult Login()
+        {
+            return View();
+        }
+        [HttpPost]
+        public IActionResult Login(LoginModel loginModel)
+        {
+            try
+            {
+
+                Employee? employee = _employeeService.GetByLoginCredentials(loginModel.UserName, loginModel.Password);
+                if (employee == null)
+                {
+                    //bad login
+                    ViewBag.ErrorMessage = "Invalid username or password!";
+                    return View(loginModel);
+                }
+                else
+                {
+                    //remember logged in user
+                    HttpContext.Session.SetObject("LoggedInUser", employee);
+                    return RedirectToAction("Index", "Employee");
+                }
+            }
+            catch (Exception ex)
+            {
+                //handle exception
+                TempData["ErrorMessage"] = ex.Message;
+                return View(loginModel);
+            }
+        }
 
         [HttpPost]
         public IActionResult Create(string firstName, string lastName,
@@ -148,5 +180,37 @@ namespace GardenGroupIncidentSystem.Controllers
                 return View("Index", new System.Collections.Generic.List<Employee>());
             }
         }
+
+        [HttpGet]
+        public IActionResult Edit(string id)
+        {
+            var emp = _employeeService.GetEmployeeById(id);
+            return View(emp);
+        }
+
+        [HttpPost]
+        public IActionResult Edit(string id, string firstName, string lastName, string role, string? emailAddress, string? phoneNumber, string? location, string? newPassword)
+        {
+            _employeeService.UpdateEmployee(id, firstName, lastName, role, emailAddress, phoneNumber, location, newPassword);
+            TempData["Success"] = "Employee updated.";
+            return RedirectToAction("Index");
+        }
+
+        [HttpGet]
+        public IActionResult Delete(string id)
+        {
+            var emp = _employeeService.GetEmployeeById(id);
+            return View(emp);
+        }
+
+        [HttpPost, ActionName("DeleteConfirmed")]
+        public IActionResult DeleteConfirmed(string id)
+        {
+            _employeeService.DeleteEmployee(id);
+            TempData["Success"] = "Employee deleted.";
+            return RedirectToAction("Index");
+        }
+
+
     }
 }

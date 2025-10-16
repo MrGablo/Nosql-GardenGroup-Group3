@@ -5,15 +5,20 @@ namespace GardenGroupIncidentSystem.Services
 {
     public interface ITicketService
     {
-        Ticket CreateTicket(Ticket ticket);
-        void CreateTickets(List<Ticket> tickets);
+        // CRUD
         List<Ticket> GetAllTickets();
         Ticket GetTicketById(string ticketId);
-        List<Ticket> GetTicketsByStatus(Status status);
-        List<Ticket> GetTicketsByEmployee(string employeeId);
+        Ticket CreateTicket(Ticket ticket);
         void UpdateTicket(string ticketId, Ticket updatedTicket);
         void DeleteTicket(string ticketId);
+
+        // Filters
+        List<Ticket> GetFilteredTickets(string q, string status, string priority, string type);
+
+        // Analytics / counts
         Dictionary<Status, int> GetTicketCountByStatus();
         Dictionary<string, int> GetTicketCountByPriority();
+
+        void UpdateTicketWithWorkflow(string ticketId, Ticket updatedTicket, string handoverTo, string handoverReason);
     }
 }

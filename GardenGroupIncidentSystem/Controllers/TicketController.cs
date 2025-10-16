@@ -16,11 +16,33 @@ namespace NoSQL_Project.Controllers
         }
 
         // Displays a list of all tickets
-        public IActionResult Index()
+        public IActionResult Index(string q = "", string status = "all", string priority = "all", string type = "all")
         {
-            var tickets = _ticketService.GetAllTickets();
-            return View(tickets);
+            try
+            {
+                var tickets = _ticketService.GetFilteredTickets(q, status, priority, type);
+
+                ViewBag.TotalCount = tickets.Count;
+                ViewBag.OpenCount = tickets.Count(t => t.TicketStatus == Status.Open);
+                ViewBag.ResolvedCount = tickets.Count(t => t.TicketStatus == Status.Resolved);
+                ViewBag.ClosedCount = tickets.Count(t => t.TicketStatus == Status.Closed);
+
+                // Keep filters active in view
+                ViewBag.Query = q;
+                ViewBag.StatusFilter = status;
+                ViewBag.PriorityFilter = priority;
+                ViewBag.TypeFilter = type;
+
+                return View(tickets);
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = $"Error loading tickets: {ex.Message}";
+                return View(new List<Ticket>());
+            }
         }
+
+
 
         // Displays details for a specific ticket by ID
         [HttpGet]
@@ -35,24 +57,62 @@ namespace NoSQL_Project.Controllers
         [HttpPost]
         public IActionResult Create(Ticket ticket)
         {
-            _ticketService.CreateTicket(ticket);
+            if (ModelState.IsValid)
+            {
+                _ticketService.CreateTicket(ticket);
+                TempData["Success"] = $"Ticket {ticket.Id} created successfully.";
+                return RedirectToAction("Index");
+            }
+
+            TempData["Error"] = "Failed to create ticket.";
+            return View(ticket);
+        }
+
+
+        [HttpGet]
+        public IActionResult Edit(string id)
+        {
+            var ticket = _ticketService.GetTicketById(id);
+            if (ticket == null)
+            {
+                TempData["Error"] = $"Ticket {id} not found.";
+                return RedirectToAction("Index");
+            }
+            return View(ticket);
+        }
+
+        [HttpPost]
+        public IActionResult Edit(string id, Ticket ticket, string HandoverTo, string HandoverReason)
+        {
+            try
+            {
+                _ticketService.UpdateTicketWithWorkflow(id, ticket, HandoverTo, HandoverReason);
+                TempData["Success"] = $"Ticket {id} updated successfully.";
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+            }
+
             return RedirectToAction("Index");
         }
 
-        // Updates an existing ticket by ID
-        [HttpPost]
-        public IActionResult Edit(string id, Ticket ticket)
-        {
-            _ticketService.UpdateTicket(id, ticket);
-            return RedirectToAction("Index");
-        }
 
         // Deletes a ticket by ID
         [HttpPost]
         public IActionResult Delete(string id)
         {
-            _ticketService.DeleteTicket(id);
-            return RedirectToAction("Index");
+            try
+            {
+                _ticketService.DeleteTicket(id);
+                TempData["Success"] = $"Ticket {id} deleted successfully.";
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Failed to delete ticket {id}: {ex.Message}";
+                return RedirectToAction("Index");
+            }
         }
     }
 }

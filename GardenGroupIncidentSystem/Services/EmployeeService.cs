@@ -120,5 +120,37 @@ namespace GardenGroupIncidentSystem.Services
                 return builder.ToString();
             }
         }
+
+        public void UpdateEmployee(string employeeId, string firstName, string lastName, string role, string? email, string? phone, string? location, string? newPassword = null)
+        {
+            if (string.IsNullOrWhiteSpace(employeeId))
+                throw new ArgumentException("employeeId is required");
+
+            string? hashed = null;
+            if (!string.IsNullOrWhiteSpace(newPassword))
+                hashed = HashPassword(newPassword);
+
+            _repository.UpdateEmployee(employeeId, firstName, lastName, role, email, phone, location, hashed);
+        }
+
+        public void DeleteEmployee(string employeeId)
+        {
+            if (string.IsNullOrWhiteSpace(employeeId))
+                throw new ArgumentException("employeeId is required");
+            _repository.DeleteEmployee(employeeId);
+        }
+
+
+        public Employee? GetByLoginCredentials(string userName, string password)
+        {
+            try
+            {
+                return _repository.GetByLoginCredentials(userName, HashPassword(password));
+            }
+            catch
+            {
+                throw new Exception("An error occurred while retrieving employee by login credentials.");
+            }
+        }
     }
 }
