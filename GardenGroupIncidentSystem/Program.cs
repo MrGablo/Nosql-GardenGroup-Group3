@@ -15,7 +15,13 @@ catch
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
-
+//creating session
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
 // Register MongoClient as SINGLETON
 builder.Services.AddSingleton<IMongoClient>(sp =>
 {
@@ -39,9 +45,12 @@ builder.Services.AddScoped(sp =>
 
 // Register Repository (Data Access Layer)
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+builder.Services.AddScoped<ITicketRepository, TicketRepository>();
+
 
 // Register Service (Business Logic Layer)
 builder.Services.AddScoped<EmployeeService>();
+builder.Services.AddScoped<ITicketService, TicketService>();
 
 var app = builder.Build();
 
@@ -55,6 +64,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthorization();
+app.UseSession(); // Enable session middleware
 
 app.MapControllerRoute(
     name: "default",

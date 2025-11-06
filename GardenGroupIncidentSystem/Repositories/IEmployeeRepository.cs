@@ -24,5 +24,11 @@ namespace GardenGroupIncidentSystem.Services.Repositories
         Dictionary<string, int> GetEmployeeCountByRole();
         Dictionary<string, int> GetEmployeeCountByLocation();
         Employee.EmployeeStatistics GetEmployeeStatistics();
+
+        void UpdateEmployee(string employeeId, string firstName, string lastName, string role, string? email, string? phone, string? location, string? hashedPassword = null);
+
+        void DeleteEmployee(string employeeId);
+
+        Employee? GetByLoginCredentials(string userName, string password);
     }
 }
