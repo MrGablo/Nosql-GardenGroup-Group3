@@ -1,4 +1,4 @@
-﻿﻿@model List<GardenGroupIncidentSystem.Models.Ticket>
+﻿@model List<GardenGroupIncidentSystem.Models.Ticket>
 @using GardenGroupIncidentSystem.Models
 @{
     ViewData["Title"] = "Tickets";
@@ -337,7 +337,21 @@
                         <th>Ticket</th>
                         <th>Subject</th>
                         <th>Type</th>
-                        <th>Priority</th>
+                        <th>
+                          Priority
+                          <a href="@Url.Action("Index", new {
+                                q = ViewBag.Query,
+                                status = ViewBag.StatusFilter,
+                                priority = ViewBag.PriorityFilter,
+                                type = ViewBag.TypeFilter,
+                                sort = "priority",
+                                dir = (ViewBag.Dir == "asc" ? "desc" : "asc")
+                              })"
+                             title="Sort by priority">
+                             (sort)
+                          </a>
+                        </th>
+
                         <th>Status</th>
                         <th>Reported</th>
                         <th>Deadline</th>
