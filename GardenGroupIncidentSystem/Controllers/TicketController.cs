@@ -1,6 +1,8 @@
-﻿using GardenGroupIncidentSystem.Models;
-using Microsoft.AspNetCore.Mvc;
+﻿using DocumentFormat.OpenXml.Wordprocessing;
+using GardenGroupIncidentSystem.Models;
 using GardenGroupIncidentSystem.Services;
+using GardenGroupIncidentSystem.Services.Sorting;
+using Microsoft.AspNetCore.Mvc;
 
 namespace NoSQL_Project.Controllers
 {
@@ -8,30 +10,46 @@ namespace NoSQL_Project.Controllers
     {
 
         private readonly ITicketService _ticketService;
+        private readonly ITicketSorter _ticketSorter;
 
         // Constructor with dependency injection for ticket service
-        public TicketController(ITicketService ticketService)
+        public TicketController(ITicketService ticketService, ITicketSorter ticketSorter)
         {
             _ticketService = ticketService;
+            _ticketSorter = ticketSorter;
         }
 
         // Displays a list of all tickets
-        public IActionResult Index(string q = "", string status = "all", string priority = "all", string type = "all")
+        public IActionResult Index(
+       string q = "", string status = "all", string priority = "all", string type = "all",
+       string sort = "priority", string dir = "desc")
         {
             try
             {
+
+
                 var tickets = _ticketService.GetFilteredTickets(q, status, priority, type);
 
-                ViewBag.TotalCount = tickets.Count;
+                // Sorting done in SEPARATE CLASS
+                if (string.Equals(sort, "priority", StringComparison.OrdinalIgnoreCase))
+                {
+                    bool asc = string.Equals(dir, "asc", StringComparison.OrdinalIgnoreCase);
+                    tickets = _ticketSorter.SortByPriority(tickets, asc).ToList();
+                }
+
+                // counts (keep your existing ones)
+                ViewBag.TotalTickets = tickets.Count; // note: your view uses ViewBag.TotalTickets
                 ViewBag.OpenCount = tickets.Count(t => t.TicketStatus == Status.Open);
                 ViewBag.ResolvedCount = tickets.Count(t => t.TicketStatus == Status.Resolved);
                 ViewBag.ClosedCount = tickets.Count(t => t.TicketStatus == Status.Closed);
 
-                // Keep filters active in view
+                // keep filters and sort state in ViewBag
                 ViewBag.Query = q;
                 ViewBag.StatusFilter = status;
                 ViewBag.PriorityFilter = priority;
                 ViewBag.TypeFilter = type;
+                ViewBag.Sort = sort;
+                ViewBag.Dir = dir;
 
                 return View(tickets);
             }
