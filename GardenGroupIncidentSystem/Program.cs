@@ -1,6 +1,7 @@
 using MongoDB.Driver;
 using GardenGroupIncidentSystem.Services;
 using GardenGroupIncidentSystem.Services.Repositories;
+using GardenGroupIncidentSystem.Services.Sorting;
 
 // Load .env file FIRST
 try
@@ -52,6 +53,7 @@ builder.Services.AddScoped<ITicketRepository, TicketRepository>();
 builder.Services.AddScoped<EmployeeService>();
 builder.Services.AddScoped<ITicketService, TicketService>();
 builder.Services.AddScoped<TicketArchivingService>();
+builder.Services.AddScoped<ITicketSorter, TicketSorter>();   
 
 var app = builder.Build();
 
