@@ -51,6 +51,7 @@ builder.Services.AddScoped<ITicketRepository, TicketRepository>();
 // Register Service (Business Logic Layer)
 builder.Services.AddScoped<EmployeeService>();
 builder.Services.AddScoped<ITicketService, TicketService>();
+builder.Services.AddScoped<TicketArchivingService>();
 
 var app = builder.Build();
 
