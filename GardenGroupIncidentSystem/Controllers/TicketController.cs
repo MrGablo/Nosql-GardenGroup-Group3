@@ -8,11 +8,13 @@ namespace NoSQL_Project.Controllers
     {
 
         private readonly ITicketService _ticketService;
+        private readonly AuthenticationService _authService;
 
         // Constructor with dependency injection for ticket service
-        public TicketController(ITicketService ticketService)
+        public TicketController(ITicketService ticketService, AuthenticationService authService)
         {
             _ticketService = ticketService;
+            _authService = authService;
         }
 
         // Displays a list of all tickets
@@ -53,19 +55,54 @@ namespace NoSQL_Project.Controllers
             return View(ticket);
         }
 
+        // Displays the form to create a new ticket
+        [HttpGet]
+        public IActionResult Create()
+        {
+            return View();
+        }
+
         // Creates a new ticket
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Create(Ticket ticket)
         {
-            if (ModelState.IsValid)
+            try
             {
-                _ticketService.CreateTicket(ticket);
-                TempData["Success"] = $"Ticket {ticket.Id} created successfully.";
-                return RedirectToAction("Index");
-            }
+                var loggedInUser = HttpContext.Session.GetObject<Employee>("LoggedInUser");
+                if (loggedInUser == null)
+                {
+                    TempData["Error"] = "Session expired. Please log in again.";
+                    return RedirectToAction("Index", "Login");
+                }
 
-            TempData["Error"] = "Failed to create ticket.";
-            return View(ticket);
+                // Basic validation for required fields
+                if (string.IsNullOrWhiteSpace(ticket.Subject) ||
+                    string.IsNullOrWhiteSpace(ticket.Type) ||
+                    string.IsNullOrWhiteSpace(ticket.Priority) ||
+                    string.IsNullOrWhiteSpace(ticket.Description))
+                {
+                    TempData["Error"] = "All fields are required!";
+                    return RedirectToAction("Create");
+                }
+
+                // Assign ticket defaults
+                ticket.EmployeeID = loggedInUser.Id;
+                ticket.TicketStatus = Status.Open;
+                ticket.DateTimeReport = DateTime.Now;
+                ticket.Deadline = DateTime.Now.AddDays(3);
+
+                // Save ticket
+                var createdTicket = _ticketService.CreateTicket(ticket);
+                TempData["Success"] = $"Ticket {createdTicket.Id} created successfully.";
+
+                return RedirectToAction("Index", "Dashboard");
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Failed to create ticket: {ex.Message}";
+                return RedirectToAction("Create");
+            }
         }
 
 

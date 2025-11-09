@@ -1,4 +1,5 @@
-﻿@model GardenGroupIncidentSystem.Models.LoginModel
+﻿﻿
+@model GardenGroupIncidentSystem.Models.LoginModel
 @{
     ViewData["Title"] = "Employee Login";
     Layout = "";
@@ -116,7 +117,7 @@
                 <div class="error-message">@ViewBag.ErrorMessage</div>
             }
 
-            <form asp-action="Login" asp-controller="Employee" method="post">
+            <form asp-action="Login" asp-controller="Login" method="post">
                 <div class="form-group">
                     <label for="UserName">First Name</label>
                     <input asp-for="UserName" type="text" placeholder="Enter your first name" required />
