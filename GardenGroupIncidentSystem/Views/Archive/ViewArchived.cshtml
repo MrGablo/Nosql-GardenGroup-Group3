@@ -206,6 +206,9 @@
         </div>
 
         <div class="content">
+            <!-- Hidden anti-forgery token for AJAX requests -->
+            @Html.AntiForgeryToken()
+
             @if (TempData["Success"] != null)
             {
                 <div class="alert alert-success">✅ @TempData["Success"]</div>
@@ -327,15 +330,26 @@
                 // Get anti-forgery token
                 const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
 
+                if (!token) {
+                    alert('❌ Security token not found. Please refresh the page.');
+                    return;
+                }
+
+                // Create form data
+                const formData = new FormData();
+                formData.append('__RequestVerificationToken', token);
+
                 // Make AJAX request
-                fetch('/Archive/Restore/' + ticketId, {
+                fetch('/Archive/Restore?id=' + ticketId, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'RequestVerificationToken': token
-                    }
+                    body: formData
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data.success) {
                         alert('✅ Ticket restored successfully!');

@@ -55,12 +55,9 @@ namespace GardenGroupIncidentSystem.Controllers
 
                 if (archivedCount > 0)
                 {
-                    TempData["Success"] = $"Successfully archived {archivedCount} ticket(s) older than 2 years.";
+                    TempData["Success"] = $"Successfully archived {archivedCount} ticket(s).";
                 }
-                else
-                {
-                    TempData["Info"] = "No tickets found to archive.";
-                }
+                // No message when 0 tickets - just silently return
             }
             catch (Exception ex)
             {
@@ -89,7 +86,11 @@ namespace GardenGroupIncidentSystem.Controllers
             try
             {
                 int archivedCount = _archiveService.ArchiveTicketsByDate(cutoffDate);
-                TempData["Success"] = $"Successfully archived {archivedCount} ticket(s) before {cutoffDate:yyyy-MM-dd}.";
+                if (archivedCount > 0)
+                {
+                    TempData["Success"] = $"Successfully archived {archivedCount} ticket(s).";
+                }
+                // No message when 0 tickets
             }
             catch (Exception ex)
             {
@@ -121,7 +122,7 @@ namespace GardenGroupIncidentSystem.Controllers
         }
 
         /// <summary>
-        /// POST: /Archive/Restore/{id}
+        /// POST: /Archive/Restore
         /// Restore archived ticket back to active tickets
         /// </summary>
         [HttpPost]
@@ -130,20 +131,25 @@ namespace GardenGroupIncidentSystem.Controllers
         {
             try
             {
+                if (string.IsNullOrEmpty(id))
+                {
+                    return Json(new { success = false, message = "Ticket ID is required" });
+                }
+
                 bool restored = _archiveService.RestoreArchivedTicket(id);
                 if (restored)
                 {
-                    TempData["Success"] = "Ticket restored successfully.";
+                    TempData["Success"] = $"Ticket {id} restored successfully.";
                     return Json(new { success = true, message = "Ticket restored" });
                 }
                 else
                 {
-                    return Json(new { success = false, message = "Failed to restore ticket" });
+                    return Json(new { success = false, message = "Ticket not found or already active" });
                 }
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = ex.Message });
+                return Json(new { success = false, message = $"Error: {ex.Message}" });
             }
         }
 
