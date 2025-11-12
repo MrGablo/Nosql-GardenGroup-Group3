@@ -53,7 +53,13 @@ builder.Services.AddScoped<ITicketRepository, TicketRepository>();
 builder.Services.AddScoped<EmployeeService>();
 builder.Services.AddScoped<ITicketService, TicketService>();
 builder.Services.AddScoped<TicketArchivingService>();
-builder.Services.AddScoped<ITicketSorter, TicketSorter>();   
+builder.Services.AddScoped<ITicketSorter, TicketSorter>();
+
+// Register Password Reset Services (YuChang Huang Individual Functionality)
+builder.Services.AddHttpContextAccessor(); 
+builder.Services.AddScoped<EmailService>();
+builder.Services.AddScoped<PasswordResetTokenService>();
+builder.Services.AddScoped<PasswordResetService>();   
 
 var app = builder.Build();
 
