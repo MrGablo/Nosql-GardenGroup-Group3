@@ -1,6 +1,8 @@
-﻿using GardenGroupIncidentSystem.Models;
-using Microsoft.AspNetCore.Mvc;
+﻿using DocumentFormat.OpenXml.Wordprocessing;
+using GardenGroupIncidentSystem.Models;
 using GardenGroupIncidentSystem.Services;
+using GardenGroupIncidentSystem.Services.Sorting;
+using Microsoft.AspNetCore.Mvc;
 
 namespace NoSQL_Project.Controllers
 {
@@ -8,32 +10,46 @@ namespace NoSQL_Project.Controllers
     {
 
         private readonly ITicketService _ticketService;
-        private readonly AuthenticationService _authService;
+        private readonly ITicketSorter _ticketSorter;
 
         // Constructor with dependency injection for ticket service
-        public TicketController(ITicketService ticketService, AuthenticationService authService)
+        public TicketController(ITicketService ticketService, ITicketSorter ticketSorter)
         {
             _ticketService = ticketService;
-            _authService = authService;
+            _ticketSorter = ticketSorter;
         }
 
         // Displays a list of all tickets
-        public IActionResult Index(string q = "", string status = "all", string priority = "all", string type = "all")
+        public IActionResult Index(
+       string q = "", string status = "all", string priority = "all", string type = "all",
+       string sort = "priority", string dir = "desc")
         {
             try
             {
+
+
                 var tickets = _ticketService.GetFilteredTickets(q, status, priority, type);
 
-                ViewBag.TotalCount = tickets.Count;
+                // Sorting done in SEPARATE CLASS
+                if (string.Equals(sort, "priority", StringComparison.OrdinalIgnoreCase))
+                {
+                    bool asc = string.Equals(dir, "asc", StringComparison.OrdinalIgnoreCase);
+                    tickets = _ticketSorter.SortByPriority(tickets, asc).ToList();
+                }
+
+                // counts (keep your existing ones)
+                ViewBag.TotalTickets = tickets.Count; // note: your view uses ViewBag.TotalTickets
                 ViewBag.OpenCount = tickets.Count(t => t.TicketStatus == Status.Open);
                 ViewBag.ResolvedCount = tickets.Count(t => t.TicketStatus == Status.Resolved);
                 ViewBag.ClosedCount = tickets.Count(t => t.TicketStatus == Status.Closed);
 
-                // Keep filters active in view
+                // keep filters and sort state in ViewBag
                 ViewBag.Query = q;
                 ViewBag.StatusFilter = status;
                 ViewBag.PriorityFilter = priority;
                 ViewBag.TypeFilter = type;
+                ViewBag.Sort = sort;
+                ViewBag.Dir = dir;
 
                 return View(tickets);
             }
@@ -55,54 +71,19 @@ namespace NoSQL_Project.Controllers
             return View(ticket);
         }
 
-        // Displays the form to create a new ticket
-        [HttpGet]
-        public IActionResult Create()
-        {
-            return View();
-        }
-
         // Creates a new ticket
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public IActionResult Create(Ticket ticket)
         {
-            try
+            if (ModelState.IsValid)
             {
-                var loggedInUser = HttpContext.Session.GetObject<Employee>("LoggedInUser");
-                if (loggedInUser == null)
-                {
-                    TempData["Error"] = "Session expired. Please log in again.";
-                    return RedirectToAction("Index", "Login");
-                }
-
-                // Basic validation for required fields
-                if (string.IsNullOrWhiteSpace(ticket.Subject) ||
-                    string.IsNullOrWhiteSpace(ticket.Type) ||
-                    string.IsNullOrWhiteSpace(ticket.Priority) ||
-                    string.IsNullOrWhiteSpace(ticket.Description))
-                {
-                    TempData["Error"] = "All fields are required!";
-                    return RedirectToAction("Create");
-                }
-
-                // Assign ticket defaults
-                ticket.EmployeeID = loggedInUser.Id;
-                ticket.TicketStatus = Status.Open;
-                ticket.DateTimeReport = DateTime.Now;
-                ticket.Deadline = DateTime.Now.AddDays(3);
-
-                // Save ticket
-                var createdTicket = _ticketService.CreateTicket(ticket);
-                TempData["Success"] = $"Ticket {createdTicket.Id} created successfully.";
-
-                return RedirectToAction("Index", "Dashboard");
+                _ticketService.CreateTicket(ticket);
+                TempData["Success"] = $"Ticket {ticket.Id} created successfully.";
+                return RedirectToAction("Index");
             }
-            catch (Exception ex)
-            {
-                TempData["Error"] = $"Failed to create ticket: {ex.Message}";
-                return RedirectToAction("Create");
-            }
+
+            TempData["Error"] = "Failed to create ticket.";
+            return View(ticket);
         }
 
 
