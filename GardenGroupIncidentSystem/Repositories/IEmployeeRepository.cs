@@ -1,4 +1,5 @@
 ﻿using GardenGroupIncidentSystem.Models;
+using System;
 using System.Collections.Generic;
 
 namespace GardenGroupIncidentSystem.Services.Repositories
@@ -30,5 +31,13 @@ namespace GardenGroupIncidentSystem.Services.Repositories
         void DeleteEmployee(string employeeId);
 
         Employee? GetByLoginCredentials(string userName, string password);
+
+        Employee? GetEmployeeByEmail(string email);
+
+        Employee? GetEmployeeByResetToken(string token);
+
+        void SavePasswordResetToken(string employeeId, string token, DateTime tokenExpiry);
+
+        void UpdatePasswordAndClearToken(string employeeId, string hashedPassword);
     }
 }
