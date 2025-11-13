@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <PackageReference Include="DotNetEnv" Version="3.1.1" />
+    <PackageReference Include="MailKit" Version="4.3.0" />
     <PackageReference Include="Moneyon.Common.Data.Mogodb" Version="2.0.0" />
     <PackageReference Include="MongoDB.Driver" Version="3.5.0" />
   </ItemGroup>
