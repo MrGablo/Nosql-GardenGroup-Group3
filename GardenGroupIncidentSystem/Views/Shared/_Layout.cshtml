@@ -1,12 +1,7 @@
-﻿@using GardenGroupIncidentSystem.Models
-@using Microsoft.AspNetCore.Http
-@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
-
-@{
+﻿@{
     var loggedInUser = Context.Session.GetObject<Employee>("LoggedInUser");
     var title = ViewData["Title"] as string ?? "Garden Group Incident System";
 }
-
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="light">
 <head>

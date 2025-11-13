@@ -71,54 +71,19 @@ namespace NoSQL_Project.Controllers
             return View(ticket);
         }
 
-        // Displays the form to create a new ticket
-        [HttpGet]
-        public IActionResult Create()
-        {
-            return View();
-        }
-
         // Creates a new ticket
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public IActionResult Create(Ticket ticket)
         {
-            try
+            if (ModelState.IsValid)
             {
-                var loggedInUser = HttpContext.Session.GetObject<Employee>("LoggedInUser");
-                if (loggedInUser == null)
-                {
-                    TempData["Error"] = "Session expired. Please log in again.";
-                    return RedirectToAction("Index", "Login");
-                }
-
-                // Basic validation for required fields
-                if (string.IsNullOrWhiteSpace(ticket.Subject) ||
-                    string.IsNullOrWhiteSpace(ticket.Type) ||
-                    string.IsNullOrWhiteSpace(ticket.Priority) ||
-                    string.IsNullOrWhiteSpace(ticket.Description))
-                {
-                    TempData["Error"] = "All fields are required!";
-                    return RedirectToAction("Create");
-                }
-
-                // Assign ticket defaults
-                ticket.EmployeeID = loggedInUser.Id;
-                ticket.TicketStatus = Status.Open;
-                ticket.DateTimeReport = DateTime.Now;
-                ticket.Deadline = DateTime.Now.AddDays(3);
-
-                // Save ticket
-                var createdTicket = _ticketService.CreateTicket(ticket);
-                TempData["Success"] = $"Ticket {createdTicket.Id} created successfully.";
-
-                return RedirectToAction("Index", "Dashboard");
+                _ticketService.CreateTicket(ticket);
+                TempData["Success"] = $"Ticket {ticket.Id} created successfully.";
+                return RedirectToAction("Index");
             }
-            catch (Exception ex)
-            {
-                TempData["Error"] = $"Failed to create ticket: {ex.Message}";
-                return RedirectToAction("Create");
-            }
+
+            TempData["Error"] = "Failed to create ticket.";
+            return View(ticket);
         }
 
 

@@ -15,18 +15,15 @@ catch
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add MVC views
 builder.Services.AddControllersWithViews();
-
-// Session Configuration
+//creating session
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(30);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
-
-// Register MongoDB Client
+// Register MongoClient as SINGLETON
 builder.Services.AddSingleton<IMongoClient>(sp =>
 {
     var conn = builder.Configuration["MongoDB:ConnectionString"];
@@ -36,7 +33,7 @@ builder.Services.AddSingleton<IMongoClient>(sp =>
     return new MongoClient(conn);
 });
 
-// Register MongoDB Database
+// Register IMongoDatabase as SCOPED
 builder.Services.AddScoped(sp =>
 {
     var client = sp.GetRequiredService<IMongoClient>();
@@ -47,11 +44,12 @@ builder.Services.AddScoped(sp =>
     return client.GetDatabase(dbName);
 });
 
-// Repositories
+// Register Repository (Data Access Layer)
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 builder.Services.AddScoped<ITicketRepository, TicketRepository>();
 
-// Services
+
+// Register Service (Business Logic Layer)
 builder.Services.AddScoped<EmployeeService>();
 builder.Services.AddScoped<ITicketService, TicketService>();
 builder.Services.AddScoped<TicketArchivingService>();
@@ -65,7 +63,6 @@ builder.Services.AddScoped<PasswordResetService>();
 
 var app = builder.Build();
 
-// Error handling
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -74,16 +71,12 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
-
-// Session comes before Authorization
-app.UseSession();
 app.UseAuthorization();
+app.UseSession(); // Enable session middleware
 
-// Set default route to Login
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Login}/{action=Index}/{id?}");
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();

@@ -6,7 +6,7 @@
 @using GardenGroupIncidentSystem.Models
 @{
     ViewData["Title"] = "Tickets";
-    var tickets = ViewData["tickets"] as List<Employee>;
+    var tickets = ViewData["tickets"] as List<GardenGroupIncidentSystem.Models.Employee>;
     var loggedInUser = Context.Session.GetObject<Employee>("LoggedInUser");
 }
 

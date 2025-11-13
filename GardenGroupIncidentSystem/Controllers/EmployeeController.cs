@@ -229,5 +229,7 @@ namespace GardenGroupIncidentSystem.Controllers
             TempData["Success"] = "Employee deleted.";
             return RedirectToAction("Index");
         }
+
+
     }
 }
