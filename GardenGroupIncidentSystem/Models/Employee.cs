@@ -2,6 +2,7 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Conventions;
+using System;
 using System.Collections.Generic;
 
 namespace GardenGroupIncidentSystem.Models
@@ -35,6 +36,12 @@ namespace GardenGroupIncidentSystem.Models
 
         [BsonElement("ContactDetails")]
         public ContactDetail ContactDetails { get; set; }
+
+        [BsonElement("PasswordResetToken")]
+        public string? PasswordResetToken { get; set; }
+
+        [BsonElement("PasswordResetTokenExpiry")]
+        public DateTime? PasswordResetTokenExpiry { get; set; }
 
         [BsonIgnoreExtraElements]
         public class ContactDetail

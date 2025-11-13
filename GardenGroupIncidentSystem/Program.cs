@@ -1,6 +1,7 @@
 using MongoDB.Driver;
 using GardenGroupIncidentSystem.Services;
 using GardenGroupIncidentSystem.Services.Repositories;
+using GardenGroupIncidentSystem.Services.Sorting;
 
 // Load .env file FIRST
 try
@@ -51,6 +52,14 @@ builder.Services.AddScoped<ITicketRepository, TicketRepository>();
 // Register Service (Business Logic Layer)
 builder.Services.AddScoped<EmployeeService>();
 builder.Services.AddScoped<ITicketService, TicketService>();
+builder.Services.AddScoped<TicketArchivingService>();
+builder.Services.AddScoped<ITicketSorter, TicketSorter>();
+
+// Register Password Reset Services (YuChang Huang Individual Functionality)
+builder.Services.AddHttpContextAccessor(); 
+builder.Services.AddScoped<EmailService>();
+builder.Services.AddScoped<PasswordResetTokenService>();
+builder.Services.AddScoped<PasswordResetService>();   
 
 var app = builder.Build();
 
