@@ -40,56 +40,56 @@ namespace GardenGroupIncidentSystem.Controllers
             }
         }
 
-        [HttpGet]
-        public IActionResult Login()
-        {
-            return View();
-        }
+        //[HttpGet]
+        //public IActionResult Login()
+        //{
+        //    return View();
+        //}
 
-        [HttpPost]
-        public IActionResult Login(LoginModel loginModel)
-        {
-            try
-            {
-                Employee? employee = _employeeService.GetByLoginCredentials(loginModel.UserName, loginModel.Password);
-                if (employee == null)
-                {
-                    //bad login
-                    ViewBag.ErrorMessage = "Invalid username or password!";
-                    return View(loginModel);
-                }
-                else
-                {
-                    //remember logged in user
-                    HttpContext.Session.SetObject("LoggedInUser", employee);
-                    return RedirectToAction("Index", "Home");
-                }
-            }
-            catch (Exception ex)
-            {
-                //handle exception
-                TempData["ErrorMessage"] = ex.Message;
-                return View(loginModel);
-            }
-        }
+        //[HttpPost]
+        //public IActionResult Login(LoginModel loginModel)
+        //{
+        //    try
+        //    {
+        //        Employee? employee = _employeeService.GetByLoginCredentials(loginModel.UserName, loginModel.Password);
+        //        if (employee == null)
+        //        {
+        //            //bad login
+        //            ViewBag.ErrorMessage = "Invalid username or password!";
+        //            return View(loginModel);
+        //        }
+        //        else
+        //        {
+        //            //remember logged in user
+        //            HttpContext.Session.SetObject("LoggedInUser", employee);
+        //            return RedirectToAction("Index", "Home");
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        //handle exception
+        //        TempData["ErrorMessage"] = ex.Message;
+        //        return View(loginModel);
+        //    }
+        //}
 
         // Logout - Clears session and redirects to Login page
-        [HttpGet]
-        public IActionResult Logout()
-        {
-            // Get username before clearing session
-            var user = HttpContext.Session.GetObject<Employee>("LoggedInUser");
-            var username = user?.Name?.FirstName ?? "User";
+        //[HttpGet]
+        //public IActionResult Logout()
+        //{
+        //    // Get username before clearing session
+        //    var user = HttpContext.Session.GetObject<Employee>("LoggedInUser");
+        //    var username = user?.Name?.FirstName ?? "User";
 
-            // Clear the session (log out the user)
-            HttpContext.Session.Clear();
+        //    // Clear the session (log out the user)
+        //    HttpContext.Session.Clear();
 
-            // Show success message on the LOGIN page
-            TempData["Success"] = $"Goodbye, {username}! You have been logged out successfully.";
+        //    // Show success message on the LOGIN page
+        //    TempData["Success"] = $"Goodbye, {username}! You have been logged out successfully.";
 
-            // Redirect to LOGIN page (not Index)
-            return RedirectToAction("Login", "Employee");
-        }
+        //    // Redirect to LOGIN page (not Index)
+        //    return RedirectToAction("Login", "Employee");
+        //}
 
         [HttpPost]
         public IActionResult Create(string firstName, string lastName,
@@ -229,5 +229,7 @@ namespace GardenGroupIncidentSystem.Controllers
             TempData["Success"] = "Employee deleted.";
             return RedirectToAction("Index");
         }
+
+
     }
 }

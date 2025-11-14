@@ -9,6 +9,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>@title - Garden Group</title>
 
+    @RenderSection("Styles", required: false)
+
+
     <!-- Bootstrap 5 -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <!-- Bootstrap Icons -->
@@ -183,16 +186,7 @@
                                 <i class="bi bi-archive me-1"></i> Archive
                             </a>
                         </li>
-                    </ul>
-
-                    <div class="d-flex align-items-center gap-2">
-                        <!-- Theme toggle -->
-                        <button id="themeToggle" type="button" class="btn btn-sm btn-outline-light rounded-circle"
-                                style="width: 40px; height: 40px; padding: 0;" title="Toggle theme">
-                            <i class="bi bi-moon-stars" id="themeIcon"></i>
-                        </button>
-
-                        @if (loggedInUser is not null)
+                        @if (loggedInUser != null)
                         {
                             <div class="dropdown user-dropdown">
                                 <button class="btn btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">

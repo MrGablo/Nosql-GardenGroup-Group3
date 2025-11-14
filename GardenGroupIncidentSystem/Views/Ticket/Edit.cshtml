@@ -3,179 +3,74 @@
     ViewData["Title"] = "Edit Ticket";
 }
 
-<!DOCTYPE html>
-<html>
-<head>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #43cea2 0%, #185a9d 100%);
-            padding: 40px;
-        }
+@section Styles {
+    <link rel="stylesheet" href="~/css/tickets.css" />
+}
 
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            padding: 40px;
-        }
+<div class="ticket-edit-container">
+    <h1>🎫 Edit Ticket – @Model.Id</h1>
 
-        h1 {
-            margin-bottom: 25px;
-            color: #185a9d;
-        }
+    @if (TempData["Success"] != null)
+    {
+        <div class="message message-success">@TempData["Success"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="message message-error">@TempData["Error"]</div>
+    }
 
-        .form-group {
-            margin-bottom: 20px;
-        }
+    <form asp-action="Edit" asp-controller="Ticket" method="post">
+        <input type="hidden" asp-for="Id" />
 
-        label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #495057;
-        }
+        <div class="form-group">
+            <label>Subject</label>
+            <input asp-for="Subject" class="readonly" readonly />
+        </div>
 
-        input, select, textarea {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #dee2e6;
-            border-radius: 8px;
-            font-size: 14px;
-            transition: border 0.3s;
-        }
+        <div class="form-group">
+            <label>Description</label>
+            <textarea asp-for="Description" rows="3" class="readonly" readonly></textarea>
+        </div>
 
-            input:focus, select:focus, textarea:focus {
-                border-color: #43cea2;
-                outline: none;
-                box-shadow: 0 0 0 2px rgba(67, 206, 162, 0.25);
-            }
+        <div class="form-group">
+            <label>Type</label>
+            <input asp-for="Type" class="readonly" readonly />
+        </div>
 
-        textarea {
-            resize: vertical;
-        }
+        <div class="form-group">
+            <label>Priority</label>
+            <input asp-for="Priority" class="readonly" readonly />
+        </div>
 
-        .btn {
-            background: linear-gradient(135deg, #43cea2 0%, #185a9d 100%);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
+        <div class="form-group">
+            <label>Current Status</label>
+            <select asp-for="TicketStatus">
+                <option value="Open" selected="@(Model.TicketStatus == GardenGroupIncidentSystem.Models.Status.Open)">Open</option>
+                <option value="Resolved" selected="@(Model.TicketStatus == GardenGroupIncidentSystem.Models.Status.Resolved)">Resolved</option>
+                <option value="Closed" selected="@(Model.TicketStatus == GardenGroupIncidentSystem.Models.Status.Closed)">Closed</option>
+            </select>
+        </div>
 
-            .btn:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 5px 15px rgba(24, 90, 157, 0.4);
-            }
+        <div class="form-group">
+            <label>Current Employee</label>
+            <input type="text" value="@(Model.WorkedBy?.LastOrDefault()?.Employee?.Id ?? "N/A")" class="readonly" readonly />
+        </div>
 
-        .actions {
-            margin-top: 30px;
-            display: flex;
-            gap: 10px;
-        }
+        <hr style="margin: 25px 0;" />
 
-        .btn-secondary {
-            background: #6c757d;
-        }
+        <div class="form-group">
+            <label>🔄 Handover To (Employee ID)</label>
+            <input type="text" name="HandoverTo" placeholder="Enter employee ID e.g. E0091" />
+        </div>
 
-            .btn-secondary:hover {
-                background: #5a6268;
-            }
+        <div class="form-group">
+            <label>Reason for Handover</label>
+            <input type="text" name="HandoverReason" placeholder="e.g. Shift change, Escalation" />
+        </div>
 
-        .readonly {
-            background-color: #f8f9fa;
-        }
-
-        .message {
-            margin-bottom: 20px;
-            padding: 10px;
-            border-radius: 8px;
-            font-weight: 500;
-        }
-
-        .message-success {
-            background: #e6f4ea;
-            color: #1b5e20;
-        }
-
-        .message-error {
-            background: #ffebee;
-            color: #b71c1c;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>🎫 Edit Ticket – @Model.Id</h1>
-
-        @if (TempData["Success"] != null)
-        {
-            <div class="message message-success">@TempData["Success"]</div>
-        }
-        @if (TempData["Error"] != null)
-        {
-            <div class="message message-error">@TempData["Error"]</div>
-        }
-
-        <form asp-action="Edit" asp-controller="Ticket" method="post">
-            <input type="hidden" asp-for="Id" />
-
-            <div class="form-group">
-                <label>Subject</label>
-                <input asp-for="Subject" class="readonly" readonly />
-            </div>
-
-            <div class="form-group">
-                <label>Description</label>
-                <textarea asp-for="Description" rows="3" class="readonly" readonly></textarea>
-            </div>
-
-            <div class="form-group">
-                <label>Type</label>
-                <input asp-for="Type" class="readonly" readonly />
-            </div>
-
-            <div class="form-group">
-                <label>Priority</label>
-                <input asp-for="Priority" class="readonly" readonly />
-            </div>
-
-            <div class="form-group">
-                <label>Current Status</label>
-                <select asp-for="TicketStatus" class="form-control">
-                    <option value="Open" selected="@(Model.TicketStatus == GardenGroupIncidentSystem.Models.Status.Open)">Open</option>
-                    <option value="Resolved" selected="@(Model.TicketStatus == GardenGroupIncidentSystem.Models.Status.Resolved)">Resolved</option>
-                    <option value="Closed" selected="@(Model.TicketStatus == GardenGroupIncidentSystem.Models.Status.Closed)">Closed</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label>Current Employee</label>
-                <input type="text" value="@(Model.WorkedBy?.LastOrDefault()?.Employee?.Id ?? "N/A")" class="readonly" readonly />
-            </div>
-
-            <hr style="margin: 25px 0;" />
-
-            <div class="form-group">
-                <label>🔄 Handover To (Employee ID)</label>
-                <input type="text" name="HandoverTo" placeholder="Enter employee ID (e.g. E0091)" />
-            </div>
-
-            <div class="form-group">
-                <label>Reason for Handover</label>
-                <input type="text" name="HandoverReason" placeholder="e.g. Shift change, Escalation" />
-            </div>
-
-            <div class="actions">
-                <button type="submit" class="btn">💾 Save Changes</button>
-                <a href="@Url.Action("Index", "Ticket")" class="btn btn-secondary">← Back to Tickets</a>
-            </div>
-        </form>
-    </div>
-</body>
-</html>
+        <div class="actions">
+            <button type="submit" class="btn-save">💾 Save Changes</button>
+            <a href="@Url.Action("Index", "Ticket")" class="btn btn-secondary">← Back to Tickets</a>
+        </div>
+    </form>
+</div>

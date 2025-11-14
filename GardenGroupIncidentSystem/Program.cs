@@ -54,12 +54,15 @@ builder.Services.AddScoped<EmployeeService>();
 builder.Services.AddScoped<ITicketService, TicketService>();
 builder.Services.AddScoped<TicketArchivingService>();
 builder.Services.AddScoped<ITicketSorter, TicketSorter>();
+builder.Services.AddScoped<AuthenticationService>();
 
 // Register Password Reset Services (YuChang Huang Individual Functionality)
 builder.Services.AddHttpContextAccessor(); 
 builder.Services.AddScoped<EmailService>();
 builder.Services.AddScoped<PasswordResetTokenService>();
-builder.Services.AddScoped<PasswordResetService>();   
+builder.Services.AddScoped<PasswordResetService>();
+
+
 
 var app = builder.Build();
 
@@ -77,6 +80,6 @@ app.UseSession(); // Enable session middleware
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Login}/{action=Index}/{id?}"); 
 
 app.Run();
