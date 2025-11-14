@@ -114,8 +114,12 @@ namespace NoSQL_Project.Controllers
                 // Save ticket
                 var createdTicket = _ticketService.CreateTicket(ticket);
                 TempData["Success"] = $"Ticket {createdTicket.Id} created successfully.";
-
-                return RedirectToAction("Index", "Dashboard");
+                if(loggedInUser.EmployeeRole == Role.regular)
+                    return RedirectToAction("Index", "Dashboard");
+                else
+                {
+                    return RedirectToAction("Index", "Ticket");
+                }
             }
             catch (Exception ex)
             {
