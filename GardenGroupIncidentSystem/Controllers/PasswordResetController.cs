@@ -107,7 +107,7 @@ namespace GardenGroupIncidentSystem.Controllers
                 if (success)
                 {
                     TempData["Success"] = "Your password has been reset successfully. You can now login with your new password.";
-                    return RedirectToAction("Login", "Employee");
+                    return RedirectToAction("Index", "Login");
                 }
                 else
                 {
