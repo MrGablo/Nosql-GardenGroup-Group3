@@ -1,5 +1,5 @@
 # 🌱 Garden Group Incident System  
-Student Project 
+Student Project-Group 3
 
 ---
 
