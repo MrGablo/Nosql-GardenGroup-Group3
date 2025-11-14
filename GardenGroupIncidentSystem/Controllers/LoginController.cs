@@ -48,14 +48,13 @@ namespace GardenGroupIncidentSystem.Controllers
             }
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+        [HttpGet]
         public IActionResult Logout()
         {
             var user = HttpContext.Session.GetObject<Employee>("LoggedInUser");
             var username = user?.Name?.FirstName ?? "User";
 
-            HttpContext.Session.Clear();
+            HttpContext.Session.Remove("LoggedInUser");
 
             TempData["Success"] = $"Goodbye, {username}! You have been logged out successfully.";
 
