@@ -13,7 +13,7 @@ namespace GardenGroupIncidentSystem.Services
         void DeleteTicket(string ticketId);
 
         // Filters
-        List<Ticket> GetFilteredTickets(string q, string status, string priority, string type);
+        List<Ticket> GetFilteredTickets(string status, string priority, string type);
 
         // Analytics / counts
         Dictionary<Status, int> GetTicketCountByStatus();

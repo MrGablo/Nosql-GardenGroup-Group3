@@ -1,7 +1,9 @@
-using MongoDB.Driver;
+using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using GardenGroupIncidentSystem.Services;
+using GardenGroupIncidentSystem.Services.Filtering;
 using GardenGroupIncidentSystem.Services.Repositories;
 using GardenGroupIncidentSystem.Services.Sorting;
+using MongoDB.Driver;
 
 // Load .env file FIRST
 try
@@ -55,6 +57,9 @@ builder.Services.AddScoped<ITicketService, TicketService>();
 builder.Services.AddScoped<TicketArchivingService>();
 builder.Services.AddScoped<ITicketSorter, TicketSorter>();
 builder.Services.AddScoped<AuthenticationService>();
+builder.Services.AddScoped<IKeywordFilterRepository, KeywordFilterRepository>();
+builder.Services.AddScoped<IKeywordFilterService, KeywordFilterService>();
+
 
 // Register Password Reset Services (YuChang Huang Individual Functionality)
 builder.Services.AddHttpContextAccessor(); 

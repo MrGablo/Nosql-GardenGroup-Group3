@@ -66,21 +66,11 @@ namespace GardenGroupIncidentSystem.Services.Repositories
 
             return _tickets.Find(t => t.Id == ticketId).FirstOrDefault();
         }
-        public List<Ticket> GetFilteredTickets(string q, string status, string priority, string type)
+        // Filter tickets based on status, priority, and type
+        public List<Ticket> GetFilteredTickets(string status, string priority, string type)
         {
             var filterBuilder = Builders<Ticket>.Filter;
             var filters = new List<FilterDefinition<Ticket>>();
-
-            // Search (by ID, subject, or description)
-            if (!string.IsNullOrWhiteSpace(q))
-            {
-                var regex = new MongoDB.Bson.BsonRegularExpression(q, "i");
-                filters.Add(filterBuilder.Or(
-                    filterBuilder.Regex(t => t.Id, regex),
-                    filterBuilder.Regex(t => t.Subject, regex),
-                    filterBuilder.Regex(t => t.Description, regex)
-                ));
-            }
 
             // Status filter
             if (!string.Equals(status, "all", StringComparison.OrdinalIgnoreCase))
@@ -103,6 +93,7 @@ namespace GardenGroupIncidentSystem.Services.Repositories
 
             return _tickets.Find(finalFilter).ToList();
         }
+
 
         public List<Ticket> GetTicketsByStatus(Status status)
         {

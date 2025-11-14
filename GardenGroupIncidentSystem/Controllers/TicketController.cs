@@ -1,6 +1,7 @@
 ﻿using DocumentFormat.OpenXml.Wordprocessing;
 using GardenGroupIncidentSystem.Models;
 using GardenGroupIncidentSystem.Services;
+using GardenGroupIncidentSystem.Services.Filtering;
 using GardenGroupIncidentSystem.Services.Sorting;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,37 +12,55 @@ namespace NoSQL_Project.Controllers
 
         private readonly ITicketService _ticketService;
         private readonly ITicketSorter _ticketSorter;
+        private readonly IKeywordFilterService _keywordFilterService;
 
         // Constructor with dependency injection for ticket service
-        public TicketController(ITicketService ticketService, ITicketSorter ticketSorter)
+        public TicketController(ITicketService ticketService, ITicketSorter ticketSorter, IKeywordFilterService keywordFilterService)
         {
             _ticketService = ticketService;
             _ticketSorter = ticketSorter;
+            _keywordFilterService = keywordFilterService;
         }
 
         // Displays a list of all tickets
         public IActionResult Index(
-       string q = "", string status = "all", string priority = "all", string type = "all",
-       string sort = "priority", string dir = "desc")
+    string q = "", string status = "all", string priority = "all", string type = "all",
+    string sort = "priority", string dir = "desc")
         {
             try
             {
-                var tickets = _ticketService.GetFilteredTickets(q, status, priority, type);
+                // Load tickets
+                var tickets = _ticketService.GetAllTickets();
 
-                // Sorting done in SEPARATE CLASS
+                // Apply keyword filter using KeywordFilterService
+                tickets = _keywordFilterService.Filter(tickets, q);
+
+                // Dropdown filters
+                if (!string.Equals(status, "all", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (Enum.TryParse<Status>(status, true, out var statusEnum))
+                        tickets = tickets.Where(t => t.TicketStatus == statusEnum).ToList();
+                }
+
+                if (!string.Equals(priority, "all", StringComparison.OrdinalIgnoreCase))
+                    tickets = tickets.Where(t => t.Priority.Equals(priority, StringComparison.OrdinalIgnoreCase)).ToList();
+
+                if (!string.Equals(type, "all", StringComparison.OrdinalIgnoreCase))
+                    tickets = tickets.Where(t => t.Type.Equals(type, StringComparison.OrdinalIgnoreCase)).ToList();
+
+                // Sort
                 if (string.Equals(sort, "priority", StringComparison.OrdinalIgnoreCase))
                 {
                     bool asc = string.Equals(dir, "asc", StringComparison.OrdinalIgnoreCase);
                     tickets = _ticketSorter.SortByPriority(tickets, asc).ToList();
                 }
-                  
-                // counts (keep your existing ones)
-                ViewBag.TotalTickets = tickets.Count; // note: your view uses ViewBag.TotalTickets
+
+                // ViewBag
+                ViewBag.TotalTickets = tickets.Count;
                 ViewBag.OpenCount = tickets.Count(t => t.TicketStatus == Status.Open);
                 ViewBag.ResolvedCount = tickets.Count(t => t.TicketStatus == Status.Resolved);
                 ViewBag.ClosedCount = tickets.Count(t => t.TicketStatus == Status.Closed);
 
-                // keep filters and sort state in ViewBag
                 ViewBag.Query = q;
                 ViewBag.StatusFilter = status;
                 ViewBag.PriorityFilter = priority;
@@ -57,6 +76,7 @@ namespace NoSQL_Project.Controllers
                 return View(new List<Ticket>());
             }
         }
+
 
         // Displays details for a specific ticket by ID
         [HttpGet]
@@ -77,15 +97,6 @@ namespace NoSQL_Project.Controllers
         [HttpPost]
         public IActionResult Create(Ticket ticket)
         {
-            //if (ModelState.IsValid)
-            //{
-            //    _ticketService.CreateTicket(ticket);
-            //    TempData["Success"] = $"Ticket {ticket.Id} created successfully.";
-            //    return RedirectToAction("Index");
-            //}
-
-            //TempData["Error"] = "Failed to create ticket.";
-            //return View(ticket);
             try
             {
                 var loggedInUser = HttpContext.Session.GetObject<Employee>("LoggedInUser");

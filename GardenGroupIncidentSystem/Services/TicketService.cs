@@ -62,10 +62,10 @@ namespace GardenGroupIncidentSystem.Services
 
         // FILTERS
 
-        public List<Ticket> GetFilteredTickets(string q, string status, string priority, string type)
+        public List<Ticket> GetFilteredTickets(string status, string priority, string type)
         {
             // Pass filters to repository
-            return _ticketRepository.GetFilteredTickets(q, status, priority, type);
+            return _ticketRepository.GetFilteredTickets(status, priority, type);
         }
 
         // ANALYTICS
