@@ -1,8 +1,5 @@
-<<<<<<< HEAD
-﻿﻿
+﻿
 @model List<GardenGroupIncidentSystem.Models.Ticket>
-
->>>>>>> a27ae06af71d86d2ad12a3939fabf309e98a1855
 @using GardenGroupIncidentSystem.Models
 @{
     ViewData["Title"] = "Tickets";
@@ -282,15 +279,15 @@
         </div>
     </div>
 
-        <div class="content">
-            @if (TempData["Success"] != null)
-            {
-                <div class="alert alert-success">✅ @TempData["Success"]</div>
-            }
-            @if (TempData["Error"] != null)
-            {
-                <div class="alert alert-error">❌ @TempData["Error"]</div>
-            }
+    <div class="content">
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success">✅ @TempData["Success"]</div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-error">❌ @TempData["Error"]</div>
+        }
 
         <div class="actions-bar">
             <!-- Search & Filters -->
@@ -454,18 +451,3 @@
         </table>
     </div>
 </div>
-            <a class="btn btn-secondary" href="@Url.Action("Index", new { page = ViewBag.PrevPage, q = ViewBag.Query, status = ViewBag.StatusFilter, priority = ViewBag.PriorityFilter, type = ViewBag.TypeFilter })">Prev</a>
-            <a class="btn btn-secondary" href="@Url.Action("Index", new { page = ViewBag.NextPage, q = ViewBag.Query, status = ViewBag.StatusFilter, priority = ViewBag.PriorityFilter, type = ViewBag.TypeFilter })">Next</a>
-        </div>
-        *@
-        </div>
-    </div>
-</body>
-</html>            <a class="btn btn-secondary" href="@Url.Action("Index", new { page = ViewBag.PrevPage, q = ViewBag.Query, status = ViewBag.StatusFilter, priority = ViewBag.PriorityFilter, type = ViewBag.TypeFilter })">Prev</a>
-            <a class="btn btn-secondary" href="@Url.Action("Index", new { page = ViewBag.NextPage, q = ViewBag.Query, status = ViewBag.StatusFilter, priority = ViewBag.PriorityFilter, type = ViewBag.TypeFilter })">Next</a>
-        </div>
-        *@
-        </div>
-    </div>
-</body>
-</html>

@@ -26,8 +26,6 @@ namespace NoSQL_Project.Controllers
         {
             try
             {
-
-
                 var tickets = _ticketService.GetFilteredTickets(q, status, priority, type);
 
                 // Sorting done in SEPARATE CLASS
@@ -36,7 +34,7 @@ namespace NoSQL_Project.Controllers
                     bool asc = string.Equals(dir, "asc", StringComparison.OrdinalIgnoreCase);
                     tickets = _ticketSorter.SortByPriority(tickets, asc).ToList();
                 }
-
+                  
                 // counts (keep your existing ones)
                 ViewBag.TotalTickets = tickets.Count; // note: your view uses ViewBag.TotalTickets
                 ViewBag.OpenCount = tickets.Count(t => t.TicketStatus == Status.Open);
@@ -60,8 +58,6 @@ namespace NoSQL_Project.Controllers
             }
         }
 
-
-
         // Displays details for a specific ticket by ID
         [HttpGet]
         public IActionResult Details(string id)
@@ -70,20 +66,62 @@ namespace NoSQL_Project.Controllers
             if (ticket == null) return NotFound();
             return View(ticket);
         }
+        // Displays the create ticket form
+        [HttpGet]
+        public IActionResult Create()
+        {
+            return View();
+        }
 
         // Creates a new ticket
         [HttpPost]
         public IActionResult Create(Ticket ticket)
         {
-            if (ModelState.IsValid)
-            {
-                _ticketService.CreateTicket(ticket);
-                TempData["Success"] = $"Ticket {ticket.Id} created successfully.";
-                return RedirectToAction("Index");
-            }
+            //if (ModelState.IsValid)
+            //{
+            //    _ticketService.CreateTicket(ticket);
+            //    TempData["Success"] = $"Ticket {ticket.Id} created successfully.";
+            //    return RedirectToAction("Index");
+            //}
 
-            TempData["Error"] = "Failed to create ticket.";
-            return View(ticket);
+            //TempData["Error"] = "Failed to create ticket.";
+            //return View(ticket);
+            try
+            {
+                var loggedInUser = HttpContext.Session.GetObject<Employee>("LoggedInUser");
+                if (loggedInUser == null)
+                {
+                    TempData["Error"] = "Session expired. Please log in again.";
+                    return RedirectToAction("Index", "Login");
+                }
+
+                // Basic validation for required fields
+                if (string.IsNullOrWhiteSpace(ticket.Subject) ||
+                    string.IsNullOrWhiteSpace(ticket.Type) ||
+                    string.IsNullOrWhiteSpace(ticket.Priority) ||
+                    string.IsNullOrWhiteSpace(ticket.Description))
+                {
+                    TempData["Error"] = "All fields are required!";
+                    return RedirectToAction("Create");
+                }
+
+                // Assign ticket defaults
+                ticket.EmployeeID = loggedInUser.Id;
+                ticket.TicketStatus = Status.Open;
+                ticket.DateTimeReport = DateTime.Now;
+                ticket.Deadline = DateTime.Now.AddDays(3);
+
+                // Save ticket
+                var createdTicket = _ticketService.CreateTicket(ticket);
+                TempData["Success"] = $"Ticket {createdTicket.Id} created successfully.";
+
+                return RedirectToAction("Index", "Dashboard");
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Failed to create ticket: {ex.Message}";
+                return RedirectToAction("Create");
+            }
         }
 
 

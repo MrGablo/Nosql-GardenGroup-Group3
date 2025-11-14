@@ -8,12 +8,10 @@ namespace GardenGroupIncidentSystem.Controllers
     public class LoginController : Controller
     {
         private readonly AuthenticationService _authService;
-        //private readonly EmployeeService _employeeService;
 
         public LoginController(AuthenticationService authService)
         {
             _authService = authService;
-            //_employeeService = employeeService;
         }
 
         [HttpGet]
@@ -38,15 +36,10 @@ namespace GardenGroupIncidentSystem.Controllers
 
                 HttpContext.Session.SetObject("LoggedInUser", employee);
 
-                // Redirect based on role
-                if (employee.EmployeeRole == Role.regular)
-                {
-                    return RedirectToAction("Index", "Dashboard");
-                }
-                else
-                {
-                    return RedirectToAction("Index", "Employee");
-                }
+                // Get redirection controller based on role
+                string redirectController = _authService.GetPostLoginRedirectController(employee.EmployeeRole);
+
+                return RedirectToAction("Index", redirectController);
             }
             catch (Exception ex)
             {
@@ -55,14 +48,18 @@ namespace GardenGroupIncidentSystem.Controllers
             }
         }
 
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Logout()
         {
+            var user = HttpContext.Session.GetObject<Employee>("LoggedInUser");
+            var username = user?.Name?.FirstName ?? "User";
+
             HttpContext.Session.Clear();
+
+            TempData["Success"] = $"Goodbye, {username}! You have been logged out successfully.";
+
             return RedirectToAction("Index", "Login");
         }
-
     }
 }

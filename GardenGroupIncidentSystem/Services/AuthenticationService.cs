@@ -35,5 +35,11 @@ namespace GardenGroupIncidentSystem.Services
             var user = GetLoggedInUser(context);
             return user != null && user.EmployeeRole == Role.regular;
         }
+        // Determine post-login redirect controller based on role
+        public string GetPostLoginRedirectController(Role role)
+        {
+            return role == Role.regular ? "Dashboard" : "Home";
+        }
+
     }
 }
