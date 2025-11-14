@@ -121,7 +121,7 @@ namespace GardenGroupIncidentSystem.Services.Repositories
         {
             if (string.IsNullOrEmpty(ticketId) || updatedTicket == null)
                 throw new Exception("Null ticket id or Ticket");
-            if(GetTicketById(ticketId) == null)
+            if (GetTicketById(ticketId) == null)
                 throw new Exception("Ticket not found");
             _tickets.ReplaceOne(t => t.Id == ticketId, updatedTicket);
         }
@@ -131,7 +131,7 @@ namespace GardenGroupIncidentSystem.Services.Repositories
             Ticket ticket = GetTicketById(ticketId);
             if (string.IsNullOrEmpty(ticketId))
                 throw new Exception("ticket id is null");
-            if(ticket.TicketStatus != Status.Closed)
+            if (ticket.TicketStatus != Status.Closed)
                 throw new Exception("Only tickets with status 'Closed' or 'Resolved' can be deleted.");
             else if (ticket.TicketStatus != Status.Resolved)
                 throw new Exception("Only tickets with status 'Closed' or 'Resolved' can be deleted.");
@@ -161,7 +161,7 @@ namespace GardenGroupIncidentSystem.Services.Repositories
 
             return pipeline.ToDictionary(x => x.Priority, x => x.Count);
         }
-        
+
         private string GenerateNextTicketId()
         {
             var lastTicket = _tickets.Find(_ => true)

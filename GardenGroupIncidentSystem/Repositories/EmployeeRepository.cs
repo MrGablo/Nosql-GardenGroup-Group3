@@ -231,5 +231,64 @@ namespace GardenGroupIncidentSystem.Services.Repositories
                 return null;
             return _employees.Find(emp => emp.Name.FirstName == userName && emp.Password == password).FirstOrDefault();
         }
+
+        public Employee? GetEmployeeByEmail(string email)
+        {
+            if (string.IsNullOrEmpty(email))
+                return null;
+
+            var filter = Builders<Employee>.Filter.Eq("ContactDetails.EmailAddress", email);
+            return _employees.Find(filter).FirstOrDefault();
+        }
+
+        public Employee? GetEmployeeByResetToken(string token)
+        {
+            if (string.IsNullOrEmpty(token))
+                return null;
+
+            var filter = Builders<Employee>.Filter.Eq(emp => emp.PasswordResetToken, token);
+            return _employees.Find(filter).FirstOrDefault();
+        }
+
+        public void SavePasswordResetToken(string employeeId, string token, DateTime tokenExpiry)
+        {
+            if (string.IsNullOrEmpty(employeeId))
+                throw new ArgumentException("Employee ID is required", nameof(employeeId));
+
+            if (string.IsNullOrEmpty(token))
+                throw new ArgumentException("Token is required", nameof(token));
+
+            var update = Builders<Employee>.Update
+                .Set(emp => emp.PasswordResetToken, token)
+                .Set(emp => emp.PasswordResetTokenExpiry, tokenExpiry);
+
+            var result = _employees.UpdateOne(
+                emp => emp.Id == employeeId,
+                update);
+
+            if (result.MatchedCount == 0)
+                throw new KeyNotFoundException($"Employee {employeeId} not found");
+        }
+
+        public void UpdatePasswordAndClearToken(string employeeId, string hashedPassword)
+        {
+            if (string.IsNullOrEmpty(employeeId))
+                throw new ArgumentException("Employee ID is required", nameof(employeeId));
+
+            if (string.IsNullOrEmpty(hashedPassword))
+                throw new ArgumentException("Hashed password is required", nameof(hashedPassword));
+
+            var update = Builders<Employee>.Update
+                .Set(emp => emp.Password, hashedPassword)
+                .Set(emp => emp.PasswordResetToken, (string?)null)
+                .Set(emp => emp.PasswordResetTokenExpiry, (DateTime?)null);
+
+            var result = _employees.UpdateOne(
+                emp => emp.Id == employeeId,
+                update);
+
+            if (result.MatchedCount == 0)
+                throw new KeyNotFoundException($"Employee {employeeId} not found");
+        }
     }
 }

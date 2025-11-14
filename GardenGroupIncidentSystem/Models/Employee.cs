@@ -2,6 +2,7 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Conventions;
+using System;
 using System.Collections.Generic;
 
 namespace GardenGroupIncidentSystem.Models
@@ -19,7 +20,7 @@ namespace GardenGroupIncidentSystem.Models
     [BsonIgnoreExtraElements]
     public class Employee
     {
-    
+
         [BsonElement("_id")]
         public string Id { get; set; }
 
@@ -35,6 +36,12 @@ namespace GardenGroupIncidentSystem.Models
 
         [BsonElement("ContactDetails")]
         public ContactDetail ContactDetails { get; set; }
+
+        [BsonElement("PasswordResetToken")]
+        public string? PasswordResetToken { get; set; }
+
+        [BsonElement("PasswordResetTokenExpiry")]
+        public DateTime? PasswordResetTokenExpiry { get; set; }
 
         [BsonIgnoreExtraElements]
         public class ContactDetail
@@ -76,7 +83,7 @@ namespace GardenGroupIncidentSystem.Models
             }
         }
 
-        public Employee(){ }
+        public Employee() { }
         public Employee(string id, Names name)
         {
             Id = id;

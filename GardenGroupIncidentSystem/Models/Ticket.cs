@@ -70,7 +70,7 @@
         [BsonElement("by")]
         public string By { get; set; }
         [BsonElement("why")]
-        public string Why { get; set; }            
+        public string Why { get; set; }
     }
 
     // Represents time-related data for each work log
