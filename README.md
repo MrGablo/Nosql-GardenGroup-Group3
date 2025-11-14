@@ -1,5 +1,5 @@
 # 🌱 Garden Group Incident System  
-Student Project – Avans Hogeschool  
+Student Project 
 
 ---
 
